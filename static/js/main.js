@@ -60,6 +60,8 @@ var app = {};
       gx = [];
       gy = [];
 
+      $('#counter').text(sumx + ' ' + sumy);
+
       if (!isNaN(sumx) && !isNaN(sumy)) {
 
       world.gravity({
@@ -95,7 +97,7 @@ var app = {};
    });
       
    // Start the simulation if it hasn't been started
-   $(Game).on('game.start', function() {
+   $(Game).on('game.start game.startPhysics', function() {
       if (!running) { 
          worldLastInterval = setInterval(worldStep, 1000/settings.targetFPS);
          running = true;
@@ -210,7 +212,7 @@ var app = {};
          });      
 
          // Start the simulation
-         $(Game).triggerHandler({type : 'game.start' });
+         $(Game).triggerHandler({type : 'game.startPhysics'});
       }
       else {
          $(Game).triggerHandler({type : 'game.notLoaded', reason : 'gravity not supported in your browser'});
