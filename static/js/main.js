@@ -59,15 +59,15 @@ var app = {};
 
       gx = [];
       gy = [];
-/*
+
       world.gravity({
          x : sumx,
          y : sumy
       });
-      */
+      
       var angle = Math.atan(sumy/(sumx + 0.00001));      
 
-      $('#counter').text(sumx + '<br/>' + sumy + '<br/>' + angle);
+      $('#counter').html(sumx + '<br/>' + sumy + '<br/>' + angle);
       /*
       bodies.beachball.ApplyImpulse({
          x : -Math.cos(angle) * settings.impulseMagnitude, 
