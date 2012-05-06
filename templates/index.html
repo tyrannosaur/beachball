@@ -35,8 +35,18 @@
   <link href='http://fonts.googleapis.com/css?family=Londrina+Sketch' rel='stylesheet' type='text/css'>
   <style type="text/css">
 
-   #counter {
-      font-family: 'Londrina Sketch', cursive;
+   #start {
+      font-family: 'Londrina Sketch';
+      font-size: 12pt;
+      border: 0px solid white;
+      background-color: rgb(22,217,235);
+      color: #006699;
+      padding: 10px;
+      display: block-inline;
+   }
+
+   #header {
+      font-family: 'Londrina Sketch';
       font-size:12pt;
       color: white;  
       position: fixed;
@@ -134,16 +144,10 @@
   <img id="beachball" src="{{url_for('static', filename='img/beachball.png')}}" />
   <img id="splash" src="{{url_for('static', filename='img/splash.png')}}" />
 
-  <div id="info">
-   <div id="orientation">
-   </div>
-   <div id="gravity">
-   </div>
-  </div>
-
-  <h1 id="counter">
-   beachball madness
-  </h1>
+ <h1 id="header">
+   <div id="counter">beachball madness!</div>
+   <input type="button" id="start" value="start" />
+ </h1>
 
   <!-- scripts concatenated and minified via build script -->
   <script src="{{url_for('static', filename='js/vendor/jquery-1.7.2.min.js')}}"></script>
@@ -152,17 +156,6 @@
   <script src="{{url_for('static', filename='js/plugins.js')}}"></script>
   <script src="{{url_for('static', filename='js/main.js')}}"></script>
   <!-- end scripts -->
-
-  <script>
-window.ondeviceorientation = function(event) {
-$('#orientation').html(event.alpha + '<br/>' + event.beta + '<br/>' + event.gamma);
-}
-
-window.ondevicemotion = function(event) {
-$('#gravity').html(event.accelerationIncludingGravity.x + '<br/>' + event.accelerationIncludingGravity.y + '</br>' + event.accelerationIncludingGravity.z);
-}
-
-</script>
 
 </body>
 </html>

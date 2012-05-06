@@ -13,73 +13,37 @@ var app = {};
 
    var world,
        bodies;
-   
-   var gravityAngle = exports.gravityAngle = function() {
-      if (world) {    
-         if (typeof arguments[0] == 'number') {
-            settings.gravityAngle = arguments[0] * Math.PI / 180;
-            
-            world.gravity({
-               x : Math.sin(settings.gravityAngle) * settings.gravityMagnitude,
-               y : Math.cos(settings.gravityAngle) * settings.gravityMagnitude
-            });            
-         }
-         else {
-            return settings.gravityAngle * 180 / Math.PI;
-         }         
-      }
-   }
 
-   // If an angle is given, increments the gravity vector by the given angle (in degrees)      
-   var incrementGravity = exports.incrementGravity = function(angle) {
-      return gravityAngle(gravityAngle() + angle);
-   }  
+   var gx = [],
+       gy = [];
+          
+   var changeGravity = function() {
+      // smooth
+      var sumx = 0,
+          sumy = 0;
 
-   $(document).bind('keydown', function(e) {
-      var LEFT = 37,
-          RIGHT = 39,
-          ESC = 27,
-          TOGGLE = 32;
-                    
-      var direction;          
-               
-      if (/r/i.test(String.fromCharCode(e.which))) {
-         exports.reset();
-      }      
-      else if (e.which == LEFT) {
-         direction = -1;               
-         $(exports).triggerHandler({type : 'game.unpause'});                              
-      }
-      else if (e.which == RIGHT) {
-         direction = +1;         
-         $(exports).triggerHandler({type : 'game.unpause'});                     
-      }
-      else if (e.which == ESC) {
-         exports.pause();         
-         $(exports).triggerHandler({type : 'game.pause'});                     
-      }
-      else if (e.which == TOGGLE) {
-         if (exports.running) {
-            exports.pause();
-            $(exports).triggerHandler({type : 'game.pause'});            
-         }
-         else {
-            exports.start();
-            $(exports).triggerHandler({type : 'game.unpause'});
-         }            
-      }
-
-      if (direction != undefined) {
-         incrementGravity(direction);
+      for (var i in gx) { sumx += gx[i]; }
+      for (var i in gy) { sumy += gy[i]; }
       
-         bodies.beachball.ApplyImpulse({
-            x : -Math.cos(settings.gravityAngle) * direction * settings.impulseMagnitude, 
-            y : Math.sin(settings.gravityAngle) * direction * settings.impulseMagnitude
-         }, 
-         bodies.beachball.GetWorldCenter());      
-      } 
+      sumx /= gx.length;
+      sumy /= gy.length;
+
+      gx = [];
+      gy = [];
+
+      world.gravity({
+         x : sumx,
+         y : sumy
+      });
       
-   });
+      var angle = Math.atan(gy/gx);      
+      
+      bodies.beachball.ApplyImpulse({
+         x : -Math.cos(angle) * settings.impulseMagnitude, 
+         y : Math.sin(angle) * settings.impulseMagnitude
+      }, 
+      bodies.beachball.GetWorldCenter());            
+   };   
    
    $(document).ready(function() {  
       var w = $(window);
@@ -175,7 +139,7 @@ var app = {};
          })   
       }
       
-      var lastTimeout = null;
+      var worldLastTimeout = null;
       
       function step() {
         var delay = settings.timeStep * 1000;
@@ -193,14 +157,14 @@ var app = {};
         });    
 
         world.world.ClearForces();                   
-        lastTimeout = setTimeout(step, (delay > 0) ? delay : 0);
+        worldLastTimeout = setTimeout(step, (delay > 0) ? delay : 0);
       }
 
       exports.running = false;
       
       // Pause the simulation
       var pause = exports.pause = function() {
-         clearTimeout(lastTimeout);
+         clearTimeout(worldLastTimeout);
          exports.running = false;
       }
       
@@ -214,8 +178,7 @@ var app = {};
       
       // Reset the simulation
       var reset = exports.reset  = function(message) {
-         pause();         
-         gravityAngle(0);
+         pause();     
          bodies.beachball.SetAngularVelocity(0);
          bodies.beachball.SetLinearVelocity({
             x : 0,
@@ -228,86 +191,65 @@ var app = {};
          $(exports).triggerHandler({
             type : 'game.reset',
             message : message
-         });         
-         start();
+         });                  
       };
-      
-      exports.gravity = world.gravity;
 
-      // Start the simulation
-      start();
+      if (window.ondevicemotion) {
+         var lastGravityInterval = -1,
+             gravityDelay = 100;
+      
+         window.ondevicemotion = function (e) {
+            gx.push(e.accelerationIncludingGravity.x);
+            gy.push(e.accelerationIncludingGravity.y);
+         }
+         
+         $(app).on('game.reset game.stop game.pause', function(e) {
+            clearInterval(lastGravityInterval);
+         });
+
+         $(app).on('game.start game.unpause', function(e) {
+            lastGravityInterval = setInterval(changeGravity, gravityDelay);
+         });      
+
+         // Start the simulation
+         start();
+      }
+      else {
+         $(app).triggerHandler({type: 'game.stop', message: 'gravity not supported in your browser'});
+         $('#start').hide();
+      }
    });         
 })(app);
 
 (function(app) {
-   var gx = [],
-       gy = [],
-       delay = 100;
-
-   window.ondevicemotion = function (e) {
-      gx.push(event.accelerationIncludingGravity.x);
-      gy.push(event.accelerationIncludingGravity.y);
-   }
-
-   var lastInterval = setInterval(function () {
-      // smooth
-      var sumx = 0,
-          sumy = 0;
-
-      for (var i in gx) { sumx += gx[i]; }
-      for (var i in gy) { sumy += gy[i]; }
-      
-      sumx /= gx.length;
-      sumy /= gy.length;
-
-      gx = [];
-      gy = [];
-
-      app.gravity({
-         x : sumx,
-         y : sumy
-      });
-    }, delay);
-})(app);
-
-(function(app) {
-   var lastTimeout,
-       running = false,
+   var lastInterval = -1,
        c = 0,
+       delay = 1000,
        counter = $('#counter');
    
-   function step() {
+   var step = function() {
      counter.text(c);
      c += 1;
-     lastTimeout = setTimeout(step, 1000);
    }
+
+   $('#start').click(function() {
+      $(this).hide();
+      $(app).triggerHandler({type: 'game.start'});
+   });
    
    $(app).on('game.reset game.stop', function(e) {
-      if (lastTimeout)
-         clearTimeout(lastTimeout);
+      clearInterval(lastInterval);
       counter.html(e.message || 'beachball madness!');   
       c = 0;
-      running = false;      
+      $('#start').show();
    });
 
-   $(app).on('game.start', function() {
-      if (!running) {
-         step();
-         running = true;
-      }
+   $(app).on('game.start game.unpause', function() {
+      lastInterval = setInterval(step, delay);
+      step();
    });   
 
-   $(app).on('game.unpause', function() {
-      if (!running) {
-         step();
-         running = true;
-      }
-   });
-   
    $(app).on('game.pause', function() {
-      if (running) {
-         clearTimeout(lastTimeout);
-         running = false;
-      }
+      clearInterval(lastInterval);
    });   
 })(app);
