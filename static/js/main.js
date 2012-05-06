@@ -4,7 +4,6 @@ var app = {};
    var settings = {
       impulseMagnitude : 0.0001,
       targetFPS : 30,
-      timeStep : 1 / 30,
       stepSize : 4,
       beachHeight: 50
    }
@@ -28,10 +27,9 @@ var app = {};
       }
    };
 
-   var worldLastTimeout = -1;
+   var worldLastInterval;
    var worldStep = function() {
-     var delay = settings.timeStep * 1000;
-     world.world.Step(settings.timeStep, settings.stepSize, settings.stepSize);
+     world.world.Step(1/30, settings.stepSize, settings.stepSize);
      
      $.each(world.bodies, function(i, body) {                     
          if (body.id != undefined) {                  
@@ -45,7 +43,6 @@ var app = {};
      });    
 
      world.world.ClearForces();                   
-     worldLastTimeout = setTimeout(worldStep, (delay > 0) ? delay : 0);
    }
 
    // Smooth the gravity data from the device and change
@@ -93,23 +90,21 @@ var app = {};
 
    // Pause the simulation  
    $(Game).on('game.pause', function() { 
-      clearTimeout(worldLastTimeout);
+      if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }
       running = false;
    });
       
    // Start the simulation if it hasn't been started
    $(Game).on('game.start', function() {
       if (!running) { 
-         worldStep();
+         worldLastInterval = setInterval(worldStep, 1000/settings.targetFPS);
          running = true;
       }
    });
       
    // Reset the simulation
    $(Game).on('game.reset', function(msg) {
-      clearTimeout(worldLastTimeout);
-      running = false;
-
+      if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }
       bodies.beachball.SetAngularVelocity(0);
       bodies.beachball.SetLinearVelocity({
          x : 0,
@@ -119,6 +114,7 @@ var app = {};
          x : world.toMeters(beachballPosition.x),
          y : world.toMeters(beachballPosition.y)
       }, 0);      
+      running = false;
    });
       
    // Call when the DOM has been fully loaded and the game needs to
@@ -148,6 +144,8 @@ var app = {};
               .css('top', w.height() - settings.beachHeight + 'px');
       dangerZone.css('left', w.width()/2 - dangerZone.width()/2 + 'px')
                 .css('top', w.height() - settings.beachHeight + 'px');
+
+      beachball.css('left', w.width()/2 - beachball.width()/2 + 'px');
 
       var beachRadius = parseInt(/([0-9]+)/.exec(dangerZone.css('-webkit-border-top-left-radius'))[1]),
           beachFlat = dangerZone.width() - beachRadius*2;
@@ -195,24 +193,24 @@ var app = {};
       }
     
       if (window.DeviceMotionEvent != undefined) {
-         var lastGravityInterval = -1,
+         var gravityLastInterval,
              gravityDelay = 100;
-  /*    
+             
          window.ondevicemotion = function (e) {
             gx.push(e.accelerationIncludingGravity.x);
             gy.push(e.accelerationIncludingGravity.y);
          }
          
          $(Game).on('game.reset game.stop game.pause', function(e) {
-            clearInterval(lastGravityInterval);
+            if (gravityLastInterval != undefined) { clearInterval(gravityLastInterval); };
          });
 
          $(Game).on('game.start game.unpause', function(e) {
-            lastGravityInterval = setInterval(changeGravity, gravityDelay);
+            gravityLastInterval = setInterval(gravityLastInterval, gravityDelay);
          });      
 
          // Start the simulation
-         $(Game).triggerHandler({type : 'game.start' });*/
+         $(Game).triggerHandler({type : 'game.start' });
       }
       else {
          $(Game).triggerHandler({type : 'game.notLoaded', reason : 'gravity not supported in your browser'});
@@ -228,7 +226,7 @@ var app = {};
 (function(app) {
    $(document).ready(function() {
       var game = app.game,      
-          counterLastInterval = -1,
+          counterLastInterval,
           c = 0,
           delay = 1000,
           counter = $('#counter');
@@ -236,17 +234,10 @@ var app = {};
       var step = function() {
         counter.text(c);
         c += 1;
-      }
-      
-      game.init();      
-
-      $('#start').click(function() {
-         $(this).hide();
-         $(game).triggerHandler({type: 'game.start'});
-      });
+      }      
       
       $(game).on('game.reset game.stop', function(e) {
-         clearInterval(counterLastInterval);
+         if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
          counter.html(e.message || 'beachball madness!');   
          c = 0;
          $('#start').show();
@@ -258,11 +249,11 @@ var app = {};
       });   
 
       $(game).on('game.pause', function() {
-         clearInterval(counterLastInterval);
+         if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
       });
    
-      $(game).on('game.notLoaded', function(reason) {
-         $('#counter').html(reason);
+      $(game).on('game.notLoaded', function(e) {
+         $('#counter').html(e.reason);
          $('#start').hide();      
       });
       
@@ -281,6 +272,13 @@ var app = {};
                            $(game).triggerHandler({type : 'game.reset', message : 'game over!<h3>try again!</h3>'});
                         });                           
                      });                      
+      });
+            
+      game.init();      
+            
+      $('#start').click(function() {
+         $(this).hide();
+         $(game).triggerHandler({type: 'game.start'});
       });
    });
 })(app);
