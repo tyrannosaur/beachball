@@ -60,23 +60,20 @@ var app = {};
       gx = [];
       gy = [];
 
-      $('#counter').text(sumx + ' ' + sumy);
-
-      if (!isNaN(sumx) && !isNaN(sumy)) {
-
       world.gravity({
          x : sumx,
          y : sumy
       });
       
-      var angle = Math.atan(gy/gx);      
+      var angle = Math.atan(sumy/(sumx + 0.00001));      
+
+      $('#counter').text(sumx + ' ' + sumy + ' ' + angle);
       
       bodies.beachball.ApplyImpulse({
          x : -Math.cos(angle) * settings.impulseMagnitude, 
          y : Math.sin(angle) * settings.impulseMagnitude
       }, 
       bodies.beachball.GetWorldCenter());
-      }            
    };   
    
    // The initial position of the beachball
@@ -194,7 +191,7 @@ var app = {};
          })   
       }
     
-      if (window.DeviceMotionEvent != undefined) {
+      if (window.DeviceMotionEvent != 2) {
          var gravityLastInterval,
              gravityDelay = 100;
              
