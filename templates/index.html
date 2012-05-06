@@ -119,10 +119,10 @@
   <img id="splash" src="{{url_for('static', filename='img/splash.png')}}" />
 
   <div id="info">
-     <strong>left arrow</strong>  - gravity left <br/>
-     <strong>right arrow</strong> - gravity right <br/>
-     <strong>spacebar</strong>    - pause/unpause <br/>
-     <strong>R</strong>           - reset <br/>
+   <div id="orientation">
+   </div>
+   <div id="gravity">
+   </div>
   </div>
 
   <h1 id="counter">
@@ -139,11 +139,14 @@
 
   <script>
 window.ondeviceorientation = function(event) {
-$('#info').text(
- event.alpha + ' '
- event.beta + ' '
- event.gamma);
+$('#orientation').html(event.alpha + '<br/>' + event.beta + '<br/>' + event.gamma);
 }
+
+window.ondevicemotion = function(event) {
+$('#gravity').html(event.accelerationIncludingGravity.x + '<br/>' + event.accelerationIncludingGravity.y + '</br>' + event.accelerationIncludingGravity.z);
+}
+
+</script>
 
 </body>
 </html>
