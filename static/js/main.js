@@ -51,7 +51,6 @@ var app = {};
    // Smooth the gravity data from the device and change
    // the gravity of the world.           
    var changeGravity = function() {
-      /*
       var sumx = 0,
           sumy = 0;
 
@@ -63,14 +62,14 @@ var app = {};
 
       gx = [];
       gy = [];
-      */
+
       if (!isNaN(sumx) && !isNaN(sumy)) {
 
       world.gravity({
-         x : gx,
-         y : gy
+         x : sumx,
+         y : sumy
       });
-      /*
+      
       var angle = Math.atan(gy/gx);      
       
       bodies.beachball.ApplyImpulse({
@@ -78,7 +77,7 @@ var app = {};
          y : Math.sin(angle) * settings.impulseMagnitude
       }, 
       bodies.beachball.GetWorldCenter());
-      } */           
+      }            
    };   
    
    // The initial position of the beachball
@@ -198,10 +197,10 @@ var app = {};
       if (window.DeviceMotionEvent != undefined) {
          var lastGravityInterval = -1,
              gravityDelay = 100;
-      
+  /*    
          window.ondevicemotion = function (e) {
-            gx = e.accelerationIncludingGravity.x;
-            gy = e.accelerationIncludingGravity.y;
+            gx.push(e.accelerationIncludingGravity.x);
+            gy.push(e.accelerationIncludingGravity.y);
          }
          
          $(Game).on('game.reset game.stop game.pause', function(e) {
@@ -211,7 +210,7 @@ var app = {};
          $(Game).on('game.start game.unpause', function(e) {
             lastGravityInterval = setInterval(changeGravity, gravityDelay);
          });      
-
+*/
          // Start the simulation
          $(Game).triggerHandler({type : 'game.start' });
       }
