@@ -8,12 +8,12 @@ var app = {};
       targetFPS : 30,
       timeStep : 1 / 30,
       stepSize : 4,
-      beachHeight: 100,
+      beachHeight: 50
    }
 
    var world,
        bodies;
-
+   
    var gravityAngle = exports.gravityAngle = function() {
       if (world) {    
          if (typeof arguments[0] == 'number') {
@@ -232,9 +232,42 @@ var app = {};
          start();
       };
       
+      exports.gravity = world.gravity;
+
       // Start the simulation
       start();
    });         
+})(app);
+
+(function(app) {
+   var gx = [],
+       gy = [],
+       delay = 100;
+
+   window.ondevicemotion = function (e) {
+      gx.push(event.accelerationIncludingGravity.x);
+      gy.push(event.accelerationIncludingGravity.y);
+   }
+
+   var lastInterval = setInterval(function () {
+      // smooth
+      var sumx = 0,
+          sumy = 0;
+
+      for (var i in gx) { sumx += gx[i]; }
+      for (var i in gy) { sumy += gy[i]; }
+      
+      sumx /= gx.length;
+      sumy /= gy.length;
+
+      gx = [];
+      gy = [];
+
+      app.gravity({
+         x : sumx,
+         y : sumy
+      });
+    }, delay);
 })(app);
 
 (function(app) {
