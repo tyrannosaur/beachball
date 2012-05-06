@@ -25,7 +25,7 @@
 
    #counter {
       font-family: 'Londrina Sketch', cursive;
-      font-size:64pt;
+      font-size:12pt;
       color: white;  
       position: fixed;
       width:100%;
@@ -37,7 +37,7 @@
    #counter h3 {
       padding: 0px;
       margin: 0px;
-      font-size: 32pt;
+      font-size: 8pt;
    }
 
    #beachball {
@@ -45,6 +45,8 @@
       left: 100px;
       top: 100px;
       z-index: 5;
+      width: 50px;
+      height: 50px;
    }
    
    #splash {
@@ -57,17 +59,17 @@
    }
 
    .safe {
-      width: 600px;
-      height: 600px;
-      -webkit-border-radius: 200px;
+      width: 300px;
+      height: 300px;
+      -webkit-border-radius: 100px;
       background-color: #bd8633; 
       z-index: 4;
    }
 
    .danger {
-      width: 800px;
-      height: 800px;
-      -webkit-border-radius: 300px;
+      width: 400px;
+      height: 300px;
+      -webkit-border-radius: 200px;
       background-color: #82521f;
       z-index: 3;
    }
@@ -134,6 +136,14 @@
   <script src="{{url_for('static', filename='js/plugins.js')}}"></script>
   <script src="{{url_for('static', filename='js/main.js')}}"></script>
   <!-- end scripts -->
+
+  <script>
+window.ondeviceorientation = function(event) {
+$('#info').text(
+ event.alpha + ' '
+ event.beta + ' '
+ event.gamma);
+}
 
 </body>
 </html>

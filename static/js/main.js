@@ -8,7 +8,7 @@ var app = {};
       targetFPS : 30,
       timeStep : 1 / 30,
       stepSize : 4,
-      beachHeight: 200,
+      beachHeight: 100,
    }
 
    var world,
