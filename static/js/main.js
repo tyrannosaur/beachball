@@ -208,7 +208,7 @@ var app = {};
          });
 
          $(Game).on('game.start game.unpause', function(e) {
-            gravityLastInterval = setInterval(gravityLastInterval, gravityDelay);
+            gravityLastInterval = setInterval(changeGravity, gravityDelay);
          });      
 
          // Start the simulation
