@@ -62,7 +62,7 @@ var app = {};
 
       world.gravity({
          x : sumx,
-         y : sumy
+         y : -sumy
       });
       
       var angle = Math.atan(sumy/(sumx + 0.00001));      
