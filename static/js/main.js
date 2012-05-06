@@ -59,7 +59,7 @@ var app = {};
 
       gx = [];
       gy = [];
-
+/*
       world.gravity({
          x : sumx,
          y : sumy
@@ -74,6 +74,7 @@ var app = {};
          y : Math.sin(angle) * settings.impulseMagnitude
       }, 
       bodies.beachball.GetWorldCenter());
+      */
    };   
    
    // The initial position of the beachball
