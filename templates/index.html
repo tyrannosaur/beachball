@@ -17,6 +17,18 @@
   <!-- Mobile viewport optimized: h5bp.com/viewport -->
   <meta name="viewport" content="width=device-width">
 
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+ 
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/h/apple-touch-icon.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/m/apple-touch-icon.png">
+  <link rel="apple-touch-icon-precomposed" href="img/l/apple-touch-icon-precomposed.png">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+
+  <link rel="shortcut icon" href="img/l/apple-touch-icon.png">
+
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
   <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
@@ -72,6 +84,7 @@
    .danger {
       width: 300px;
       height: 200px;
+      bottom: 50px;
       -webkit-border-radius: 100px;
       background-color: #82521f;
       z-index: 3;
