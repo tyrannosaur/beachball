@@ -194,7 +194,7 @@ var app = {};
          });                  
       };
 
-      if (window.ondevicemotion) {
+      if (window.DeviceMotionEvent != undefined) {
          var lastGravityInterval = -1,
              gravityDelay = 100;
       
