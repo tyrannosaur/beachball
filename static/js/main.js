@@ -210,9 +210,9 @@ var app = {};
          $(Game).on('game.start game.unpause', function(e) {
             lastGravityInterval = setInterval(changeGravity, gravityDelay);
          });      
-*/
+
          // Start the simulation
-         $(Game).triggerHandler({type : 'game.start' });
+         $(Game).triggerHandler({type : 'game.start' });*/
       }
       else {
          $(Game).triggerHandler({type : 'game.notLoaded', reason : 'gravity not supported in your browser'});
