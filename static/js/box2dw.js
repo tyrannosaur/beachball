@@ -257,7 +257,7 @@ var box2dw = {};
       var fix = body.CreateFixture(fixDef);      
 
       if (typeof settings.sensorCallback === 'function') {
-         fix.SetSensor(true);         
+     //    fix.SetSensor(true);         
          body.sensorCallback = settings.sensorCallback;      
       }
 
