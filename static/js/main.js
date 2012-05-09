@@ -258,6 +258,7 @@ var app = {};
           counterLastInterval,
           c = 0,
           delay = 50,
+          running = false,
           counter = $('#counter');
                 
       var step = function() {
@@ -270,15 +271,18 @@ var app = {};
          counter.html(e.message || 'beachball madness!');   
          c = 0;
          $('.start').show();
+         running = false;
       });
 
       $(game).on('game.start game.unpause', function() {
          counterLastInterval = setInterval(step, delay);
          step();
+         running = true;
       });   
 
       $(game).on('game.pause', function() {
          if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
+         running = false;
       });
    
       $(game).on('game.notLoaded', function(e) {
@@ -306,8 +310,11 @@ var app = {};
       game.init();      
 
       $('.start').click(function() {
-         $('.start').fadeOut();
-         $(game).triggerHandler({type: 'game.start'});
+         if (!running) {
+            running = true;
+            $('.start').fadeOut();
+            $(game).triggerHandler({type: 'game.start'});
+         }
       });
    });
 })(app);
