@@ -35,14 +35,25 @@
   <link href='http://fonts.googleapis.com/css?family=Wellfleet' rel='stylesheet' type='text/css'>
   <style type="text/css">
 
-   #start {
+   .start {
       font-family: 'Wellfleet';
       font-size: 12pt;
       border: 0px solid white;
-      background-color: rgb(22,217,235);
-      color: #006699;
+      color: rgb(22,217,235);
+      background-color: #006699;
       padding: 10px;
       display: block-inline;
+      position: fixed;
+   }
+
+   #start-left {
+      bottom: 0px;
+      left: 0px;
+   }
+
+   #start-right {
+      bottom: 0px;
+      right: 0px;
    }
 
    #header {
@@ -146,8 +157,10 @@
 
   <h1 id="header">
     <div id="counter">beachball madness!</div>
-    <input type="button" id="start" value="start" />
   </h1>
+
+  <input type="button" id="start-left" class="start" value="start" />
+  <input type="button" id="start-right" class="start" value="start" />
 
   <!-- scripts concatenated and minified via build script -->
   <script src="{{url_for('static', filename='js/vendor/jquery-1.7.2.min.js')}}"></script>
