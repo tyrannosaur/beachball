@@ -264,7 +264,7 @@ var app = {};
           counter = $('#counter');
                 
       var step = function() {
-        counter.text(c.toFixed(2));
+        counter.html(c.toFixed(2));
         c += 1/delay;
       }      
       
@@ -272,7 +272,7 @@ var app = {};
          if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
          counter.html(e.message || title);   
          c = 0;
-         $('.start').show();
+         $('.start').fadeIn();
          running = false;
       });
 
