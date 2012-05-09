@@ -159,38 +159,41 @@ var app = {};
       // Set up the bodies.
       // The beach bodies consist of two circles capping the danger zone
       // with a rectangle over the safe zone between them
+
+      var wallThickness = 10;
+
       bodies = {
          bottomWall : world.body({
             static : true,         
             sensorCallback : onFloorHit,
             x : w.width()/2 + 'px',
-            y : w.height() + 'px',
+            y : w.height() + wallThickness*2 + 'px',
             width : w.width() * 4 + 'px',
-            height : '30px'
+            height : wallThickness + 'px'
          }),
          leftWall : world.body({
             static : true,
             sensorCallback : onWallHit,
-            x : '0px',
+            x : -wallThickness * 2 + 'px',
             y : w.height()/2 + 'px',
-            width : '30px',
+            width : wallThickness + 'px',
             height : w.height() * 4 + 'px'
          }),
          rightWall : world.body({
             static : true,
             sensorCallback : onWallHit,
-            x : w.width() + 'px',
+            x : w.width() + wallThickness*2 + 'px',
             y : w.height() / 2 + 'px',
-            width : '30px',
+            width : wallThickness + 'px',
             height : w.height() * 4 + 'px'
          }),
          topWall : world.body({
             static : true,
             sensorCallback: onWallHit,
             x : w.width()/2 + 'px',
-            y : '0px',
+            y : -wallThickness*2 + 'px',
             width : w.width() * 4 + 'px',
-            height : '30px'
+            height : wallThickness + 'px'
          }),
          beachCenter : world.body({
             shape : 'box',
