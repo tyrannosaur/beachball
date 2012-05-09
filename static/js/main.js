@@ -257,19 +257,19 @@ var app = {};
       var game = app.game,      
           counterLastInterval,
           c = 0,
-          delay = 1000,
+          delay = 50,
           counter = $('#counter');
                 
       var step = function() {
-        counter.text(c);
-        c += 1;
+        counter.text(c.toPrecision(2));
+        c += 1/delay;
       }      
       
       $(game).on('game.reset game.stop', function(e) {
          if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
          counter.html(e.message || 'beachball madness!');   
          c = 0;
-         $('#start').show();
+         $('.start').show();
       });
 
       $(game).on('game.start game.unpause', function() {
@@ -283,7 +283,7 @@ var app = {};
    
       $(game).on('game.notLoaded', function(e) {
          $('#counter').html(e.reason);
-         $('#start').hide();      
+         $('.start').hide(300);      
       });
       
       $(game).on('game.wallHit', function(e) {
@@ -305,10 +305,8 @@ var app = {};
             
       game.init();      
 
-      console.log('game init');
-
-      $('#start').click(function() {
-         $(this).hide();
+      $('.start').click(function() {
+         $(this).hide(300);
          $(game).triggerHandler({type: 'game.start'});
       });
    });
