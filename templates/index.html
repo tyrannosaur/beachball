@@ -32,11 +32,11 @@
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
   <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-  <link href='http://fonts.googleapis.com/css?family=Londrina+Sketch' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Wellfleet' rel='stylesheet' type='text/css'>
   <style type="text/css">
 
    #start {
-      font-family: 'Londrina Sketch';
+      font-family: 'Wellfleet';
       font-size: 12pt;
       border: 0px solid white;
       background-color: rgb(22,217,235);
@@ -46,7 +46,7 @@
    }
 
    #header {
-      font-family: 'Londrina Sketch';
+      font-family: 'Wellfleet';
       font-size:18pt;
       color: white;  
       position: fixed;
@@ -123,6 +123,15 @@
       height: auto;     
    }
 
+   #splash {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: #404040;
+      color: white;
+      z-index:6;
+   }
+
   </style>
 
   <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
@@ -144,10 +153,14 @@
   <img id="beachball" src="{{url_for('static', filename='img/beachball.png')}}" />
   <img id="splash" src="{{url_for('static', filename='img/splash.png')}}" />
 
- <h1 id="header">
-   <div id="counter">beachball madness!</div>
-   <input type="button" id="start" value="start" />
- </h1>
+  <h1 id="header">
+    <div id="counter">beachball madness!</div>
+    <input type="button" id="start" value="start" />
+  </h1>
+
+  <div id="splash">
+      loading...
+  </div>
 
   <!-- scripts concatenated and minified via build script -->
   <script src="{{url_for('static', filename='js/vendor/jquery-1.7.2.min.js')}}"></script>

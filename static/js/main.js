@@ -60,21 +60,22 @@ var app = {};
       gx = [];
       gy = [];
 
-      world.gravity({
-         x : sumx,
-         y : -sumy
-      });
+      if (!isNaN(sumx) && !isNaN(sumy)) {
+         world.gravity({
+            x : sumx,
+            y : -sumy
+         });
       
-      var angle = Math.atan(sumy/(sumx + 0.00001));      
+         var angle = Math.atan(sumy/(sumx + 0.00001));      
 
-      $('#counter').html(sumx + '<br/>' + sumy + '<br/>' + angle);
-      /*
-      bodies.beachball.ApplyImpulse({
-         x : -Math.cos(angle) * settings.impulseMagnitude, 
-         y : Math.sin(angle) * settings.impulseMagnitude
-      }, 
-      bodies.beachball.GetWorldCenter());
-      */
+         $('#counter').html(sumx + '<br/>' + sumy + '<br/>' + angle);
+            
+         bodies.beachball.ApplyImpulse({
+            x : -Math.cos(angle) * settings.impulseMagnitude, 
+            y : Math.sin(angle) * settings.impulseMagnitude
+         }, 
+         bodies.beachball.GetWorldCenter());
+      }
    };   
    
    // The initial position of the beachball
@@ -192,7 +193,7 @@ var app = {};
          })   
       }
     
-      if (window.DeviceMotionEvent != 2) {
+      if (window.DeviceMotionEvent != undefined) {
          var gravityLastInterval,
              gravityDelay = 100;
              
@@ -208,13 +209,12 @@ var app = {};
          $(Game).on('game.start game.unpause', function(e) {
             gravityLastInterval = setInterval(changeGravity, gravityDelay);
          });      
-
-         // Start the simulation
-         $(Game).triggerHandler({type : 'game.startPhysics'});
       }
       else {
-         $(Game).triggerHandler({type : 'game.notLoaded', reason : 'gravity not supported in your browser'});
+         $(Game).triggerHandler({type : 'game.notLoaded', reason : 'device gravity not supported in your browser'});
       }
+      // Start the simulation
+      $(Game).triggerHandler({type : 'game.startPhysics'});
    };        
    
    app.game = Game;
@@ -280,5 +280,7 @@ var app = {};
          $(this).hide();
          $(game).triggerHandler({type: 'game.start'});
       });
+
+      $('#splash').hide();
    });
 })(app);
