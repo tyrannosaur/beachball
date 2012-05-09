@@ -22,6 +22,8 @@ var app = {};
       if (bodyA.id == '#beachball') { body = bodyA; }
       else if (bodyB.id == '#beachball') { body = bodyB; }
 
+      console.log('floor hit');
+
       if (body) {
          $(Game).triggerHandler({type : 'game.reset', message : 'game over!<h3>try again!</h3>'});
          $(Game).triggerHandler({type: 'game.wallHit', body: body});
