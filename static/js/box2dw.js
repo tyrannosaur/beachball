@@ -50,7 +50,6 @@ var box2dw = {};
 
       var contactListener = new Box2D.Dynamics.b2ContactListener;
       contactListener.BeginContact = function(contact) {      
-         console.log('begin contact ' + contact);
          if (typeof contact.m_fixtureA.m_body.sensorCallback === 'function')
             contact.m_fixtureA.m_body.sensorCallback.call(null, contact, contact.m_fixtureA.m_body, contact.m_fixtureB.m_body);
             

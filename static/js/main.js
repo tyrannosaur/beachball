@@ -166,14 +166,14 @@ var app = {};
             x : w.width()/2 + 'px',
             y : w.height() + 'px',
             width : w.width() * 4 + 'px',
-            height : '10px'
+            height : '30px'
          }),
          leftWall : world.body({
             static : true,
             sensorCallback : onWallHit,
             x : '0px',
             y : w.height()/2 + 'px',
-            width : '10px',
+            width : '30px',
             height : w.height() * 4 + 'px'
          }),
          rightWall : world.body({
@@ -181,7 +181,7 @@ var app = {};
             sensorCallback : onWallHit,
             x : w.width() + 'px',
             y : w.height() / 2 + 'px',
-            width : '10px',
+            width : '30px',
             height : w.height() * 4 + 'px'
          }),
          topWall : world.body({
@@ -190,7 +190,7 @@ var app = {};
             x : w.width()/2 + 'px',
             y : '0px',
             width : w.width() * 4 + 'px',
-            height : '10px'
+            height : '30px'
          }),
          beachCenter : world.body({
             shape : 'box',
