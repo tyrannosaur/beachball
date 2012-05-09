@@ -251,6 +251,68 @@ var app = {};
     
 })(app);
 
+// Clouds
+(function(app) {
+   var settings = {
+      numClouds : 10,
+      targetFPS : 30
+   }
+   
+   var w = $(window),
+       clouds = [],
+       parsePx = function(x) { return parseFloat(x.replace(/px/i, '')); };
+
+   var step = function() {
+      $.each(clouds, function(key, cloud) {       
+         var $cloud = cloud.image,
+             $width = $cloud.width(),
+             $height = $cloud.height(),
+             $left = parsePx($cloud.css('left'));
+
+         if ($left <= 0) {
+            $cloud.fadeOut('short', function() {
+               $cloud.css('left', parseInt(w.width()) + 'px');
+               $cloud.css('top', parseInt(Math.random() * (w.height - $height)) + 'px');   
+               $cloud.fadeIn('short');
+            });
+         }
+         else {
+            $cloud.css('left', parseInt($left - cloud.dx) + 'px');
+         }
+      });
+   }
+
+   var Clouds = function() {
+   };
+
+   Clouds.init = function() {
+      for (var i=0; i<settings.numClouds; i++) {
+         var c = {},
+             scale = (50 + (Math.random() * 150)) / 100;
+
+         c.image = $('#cloud').clone();
+         c.image.attr('id', null);
+         c.image.css('position', 'fixed');
+         
+         $('#sea').append(c.image);
+                  
+         c.image.css('width', 90 * scale + 'px');
+         c.image.css('height', 50 * scale + 'px');
+         c.dx = (0.01 + scale * scale * scale * scale * 5) / settings.targetFPS;
+
+         c.image.css('left', parseInt(Math.random() * (w.width() - c.image.width())) + 'px');
+         c.image.css('top', parseInt(Math.random() * (w.height() - c.image.height())) + 'px');
+
+         clouds.push(c);
+      }
+
+      setInterval(step, 1000 /  settings.targetFPS);
+   }
+
+   app.clouds = Clouds;
+
+})(app);
+
 // UI
 (function(app) {
    $(document).ready(function() {
@@ -312,7 +374,8 @@ var app = {};
                         });                      
          }
       });
-            
+         
+      app.clouds.init();   
       game.init();      
 
       $('.start').click(function() {
