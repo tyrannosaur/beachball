@@ -156,7 +156,6 @@ var box2dw = {};
       merge({      
          'shape' : 'box',
          'static' : true,
-         'sensor' : false,
          'density' : 1.0,
          'friction' : 0.5,
          'restitution' : 0.3,

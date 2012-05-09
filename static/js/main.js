@@ -305,6 +305,8 @@ var app = {};
             
       game.init();      
 
+      console.log('game init');
+
       $('#start').click(function() {
          $(this).hide();
          $(game).triggerHandler({type: 'game.start'});
