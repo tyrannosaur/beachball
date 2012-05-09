@@ -254,7 +254,7 @@ var app = {};
 // Clouds
 (function(app) {
    var settings = {
-      numClouds : 10,
+      numClouds : 4,
       targetFPS : 30
    }
    
