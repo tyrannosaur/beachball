@@ -27,6 +27,10 @@ var app = {};
       }
    };
 
+   var onWallHit = function(sensor, bodyA, bodyB) {
+      $(Game).triggerHandler({type: 'game.reset'});
+   }
+
    var worldLastInterval;
    var worldStep = function() {
      world.world.Step(1/30, settings.stepSize, settings.stepSize);
@@ -67,8 +71,6 @@ var app = {};
          });
       
          var angle = Math.atan(sumy/(sumx + 0.00001));      
-
-         $('#counter').html(sumx + '<br/>' + sumy + '<br/>' + angle);
             
          bodies.beachball.ApplyImpulse({
             x : -Math.cos(angle) * settings.impulseMagnitude, 
@@ -155,14 +157,36 @@ var app = {};
       // The beach bodies consist of two circles capping the danger zone
       // with a rectangle over the safe zone between them
       bodies = {
-         floor : world.body({
+         bottomWall : world.body({
             static : true,         
             sensorCallback : onFloorHit,
             x : w.width()/2 + 'px',
             y : w.height() + 'px',
             width : w.width() * 4 + 'px',
             height : '10px'
-         }),  
+         }),
+         leftWall : world.body({
+            static : true,
+            sensorCallback : onWallHit,
+            x : '0px',
+            y : w.height()/2 + 'px',
+            width : '10px',
+            height : w.height() + 'px'
+         }),
+         rightWall : world.body({
+            static : true,
+            sensorCallback : onWallHit,
+            x : w.width() + 'px',
+            y : w.height() / 2 + 'px',
+            width : '10px',
+            height : w.height() + 'px'
+         }),
+         topWall : world.body({
+            x : w.width()/2 + 'px',
+            y : '0px',
+            width : w.width() + 'px',
+            height : '10px'
+         }),
          beachCenter : world.body({
             shape : 'box',
             x : w.width()/2 + 'px',
@@ -274,6 +298,24 @@ var app = {};
                      });                      
       });
             
+      $(window).bind('keyDown', function(e) {
+         var c = String.fromCharCode(e.which).toLowerCase();
+   
+         switch(e.which) {
+            // left arrow
+            case 37:    
+            return world.gravity({x : -9.8, y: -4.4});
+
+            // up arrow
+            case 38:
+            return world.gravity({x : -9.8, y: 0});
+
+            // right arrow
+            case 39:
+            return world.gravity({x : 9.8, y: -4.4});
+         }
+      });
+
       game.init();      
             
       $('#start').click(function() {
