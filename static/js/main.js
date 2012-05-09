@@ -264,13 +264,13 @@ var app = {};
           counter = $('#counter');
                 
       var step = function() {
-        counter.html(c.toFixed(2));
+        counter.text(c.toFixed(2));
         c += 1/delay;
       }      
       
       $(game).on('game.reset game.stop', function(e) {
          if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
-         counter.text(e.message || title);   
+         counter.html(e.message || title);   
          c = 0;
          $('.start').fadeIn();
          running = false;
