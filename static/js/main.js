@@ -261,8 +261,7 @@ var app = {};
           counter = $('#counter');
                 
       var step = function() {
-        var s = c.toPrecision(2);
-        counter.text(s.split('.')[1].length == 2 ? s : s + '0');
+        counter.text(c.toFixed(2));
         c += 1/delay;
       }      
       
