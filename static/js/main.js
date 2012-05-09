@@ -23,6 +23,7 @@ var app = {};
       else if (bodyB.id == '#beachball') { body = bodyB; }
 
       if (body) {
+         $(Game).triggerHandler({type : 'game.reset', message : 'game over!<h3>try again!</h3>'});
          $(Game).triggerHandler({type: 'game.wallHit', body: body});
       }
    };
