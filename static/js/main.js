@@ -375,7 +375,7 @@ var app = {};
          }
       });
          
-      app.clouds.init();   
+      //app.clouds.init();   
       game.init();      
 
       $('.start').click(function() {
