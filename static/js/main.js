@@ -270,7 +270,7 @@ var app = {};
       
       $(game).on('game.reset game.stop', function(e) {
          if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
-         counter.html(e.message || title);   
+         counter.text(e.message || title);   
          c = 0;
          $('.start').fadeIn();
          running = false;
@@ -293,21 +293,24 @@ var app = {};
       });
       
       $(game).on('game.wallHit', function(e) {
-         var drawScale = game.drawScale(),
-             w = $(window);         
+         if (running) {
+            running = false;
+            var drawScale = game.drawScale(),
+                w = $(window);         
          
-         var splashX = ((e.body.GetPosition().x * drawScale) < w.width()/2)
-                   ? 0
-                   : w.width() - $('#splash').width();
+            var splashX = ((e.body.GetPosition().x * drawScale) < w.width()/2)
+                      ? 0
+                      : w.width() - $('#splash').width();
                    
-         $('#splash').css('bottom', '0px')
-                     .css('left', splashX + 'px')
-                     .show(100, function() {
-                        $(this).fadeOut(800, function() {
-                           var time = c.toFixed(2);
-                           $(game).triggerHandler({type : 'game.reset', message : time + '<h3>final time</h3>'});
-                        });                           
-                     });                      
+            $('#splash').css('bottom', '0px')
+                        .css('left', splashX + 'px')
+                        .show(100, function() {
+                           $(this).fadeOut(800, function() {
+                              var time = c.toFixed(2);
+                              $(game).triggerHandler({type : 'game.reset', message : time + '<h3>final time</h3>'});
+                           });                           
+                        });                      
+         }
       });
             
       game.init();      
