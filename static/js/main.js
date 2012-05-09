@@ -254,6 +254,8 @@ var app = {};
 // UI
 (function(app) {
    $(document).ready(function() {
+      var title = 'beachball madness!';
+
       var game = app.game,      
           counterLastInterval,
           c = 0,
@@ -268,7 +270,7 @@ var app = {};
       
       $(game).on('game.reset game.stop', function(e) {
          if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
-         counter.html(e.message || 'beachball madness!');   
+         counter.html(e.message || title);   
          c = 0;
          $('.start').show();
          running = false;
@@ -316,5 +318,7 @@ var app = {};
             $(game).triggerHandler({type: 'game.start'});
          }
       });
+
+      $('#counter').text(title);
    });
 })(app);
