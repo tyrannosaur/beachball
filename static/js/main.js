@@ -164,14 +164,14 @@ var app = {};
             static : true,         
             sensorCallback : onFloorHit,
             x : w.width()/2 + 'px',
-            y : w.height() + wallThickness*2 + 'px',
+            y : w.height() + beachball.height() + 'px',
             width : w.width() * 4 + 'px',
             height : wallThickness + 'px'
          }),
          leftWall : world.body({
             static : true,
             sensorCallback : onWallHit,
-            x : -wallThickness * 2 + 'px',
+            x : -beachball.width() + 'px',
             y : w.height()/2 + 'px',
             width : wallThickness + 'px',
             height : w.height() * 4 + 'px'
@@ -179,7 +179,7 @@ var app = {};
          rightWall : world.body({
             static : true,
             sensorCallback : onWallHit,
-            x : w.width() + wallThickness*2 + 'px',
+            x : w.width() + beachball.width() + 'px',
             y : w.height() / 2 + 'px',
             width : wallThickness + 'px',
             height : w.height() * 4 + 'px'
@@ -188,7 +188,7 @@ var app = {};
             static : true,
             sensorCallback: onWallHit,
             x : w.width()/2 + 'px',
-            y : -wallThickness*2 + 'px',
+            y : -beachball.height() + 'px',
             width : w.width() * 4 + 'px',
             height : wallThickness + 'px'
          }),
