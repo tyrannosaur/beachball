@@ -164,7 +164,7 @@ var app = {};
             static : true,         
             sensorCallback : onFloorHit,
             x : w.width()/2 + 'px',
-            y : w.height() + beachball.height() * 2 + 'px',
+            y : w.height() + beachball.height() + wallThickness + 'px',
             width : w.width() * 4 + 'px',
             height : wallThickness + 'px'
          }),
@@ -304,7 +304,8 @@ var app = {};
                      .css('left', splashX + 'px')
                      .show(100, function() {
                         $(this).fadeOut(800, function() {
-                           $(game).triggerHandler({type : 'game.reset', message : c.toFixed(2) + '<h3>final time</h3>'});
+                           var time = c.toFixed(2);
+                           $(game).triggerHandler({type : 'game.reset', message : time + '<h3>final time</h3>'});
                         });                           
                      });                      
       });
