@@ -302,7 +302,7 @@ var app = {};
                      .css('left', splashX + 'px')
                      .show(100, function() {
                         $(this).fadeOut(800, function() {
-                           $(game).triggerHandler({type : 'game.reset', message : 'game over!<h3>try again!</h3>'});
+                           $(game).triggerHandler({type : 'game.reset', message : c.toFixed(2) + '<h3>final time</h3>'});
                         });                           
                      });                      
       });
