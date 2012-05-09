@@ -261,7 +261,8 @@ var app = {};
           counter = $('#counter');
                 
       var step = function() {
-        counter.text(c.toPrecision(2));
+        var s = c.toPrecision(2);
+        counter.text(s.split('.')[1].length == 2 ? s : s + '0');
         c += 1/delay;
       }      
       
@@ -283,7 +284,7 @@ var app = {};
    
       $(game).on('game.notLoaded', function(e) {
          $('#counter').html(e.reason);
-         $('.start').hide(300);      
+         $('.start').fadeOut();      
       });
       
       $(game).on('game.wallHit', function(e) {
@@ -306,7 +307,7 @@ var app = {};
       game.init();      
 
       $('.start').click(function() {
-         $(this).hide(300);
+         $('.start').fadeOut();
          $(game).triggerHandler({type: 'game.start'});
       });
    });
