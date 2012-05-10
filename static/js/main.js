@@ -303,7 +303,7 @@ var app = {};
                   
          c.image.css('width', settings.width * scale + 'px');
          c.image.css('height', settings.height * scale + 'px');
-         c.dx = (0.01 + scale * scale * scale * scale * 3) / settings.targetFPS;
+         c.dx = (1 + ((scale - 0.5)/1.5) * 10) / settings.targetFPS;
 
          c.image.css('left', parseInt(Math.random() * (w.width() - c.image.width())) + 'px');
          c.image.css('top', parseInt(Math.random() * (w.height() - c.image.height())) + 'px');
