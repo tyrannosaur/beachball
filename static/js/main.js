@@ -392,23 +392,24 @@ var app = {};
                $('.start').fadeOut();
                $(game).triggerHandler({type: 'game.start'});
             }
-         });
+         });    
+
+         var toggled = true;
+
+         $('#clouds-toggle').click(function() {
+            if (toggled) {
+               $(this).attr('value', 'clouds');
+               app.clouds.uninit();            
+            }
+            else {
+               $(this).attr('value', 'no clouds');
+               app.clouds.init();
+            }
+            toggled = !toggled;
+         })
+         .click();
       });
-   
+
       game.init();
-
-      var toggled = false;
-
-      $('#clouds-toggle').click(function() {
-         if (toggled) {
-            $(this).attr('value', 'clouds');
-            app.clouds.uninit();            
-         }
-         else {
-            $(this).attr('value', 'no clouds');
-            app.clouds.init();
-         }
-         toggled = !toggled;
-      });    
    });
 })(app);
