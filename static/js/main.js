@@ -394,7 +394,7 @@ var app = {};
             }
          });    
 
-         var toggled = true;
+         var toggled = false;
 
          $('#clouds-toggle').click(function() {
             if (toggled) {
