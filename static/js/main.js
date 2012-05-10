@@ -239,7 +239,7 @@ var app = {};
             gravityLastInterval = setInterval(changeGravity, gravityDelay);
          });      
 
-         $(Game).triggHandler({type: 'game.loaded'});
+         $(Game).triggerHandler({type: 'game.loaded'});
       }
       else {
          $(Game).triggerHandler({type : 'game.notLoaded', reason : 'device gravity not supported in your browser'});
