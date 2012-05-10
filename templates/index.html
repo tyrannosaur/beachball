@@ -20,14 +20,14 @@
   <meta name="HandheldFriendly" content="True">
   <meta name="MobileOptimized" content="320">
  
-  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/h/apple-touch-icon.png">
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/m/apple-touch-icon.png">
-  <link rel="apple-touch-icon-precomposed" href="img/l/apple-touch-icon-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{url_for('static', filename='img/h/apple-touch-icon.png')}}">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{url_for('static', filename='img/m/apple-touch-icon.png')}}">
+  <link rel="apple-touch-icon-precomposed" href="{{url_for('static', filename='img/l/apple-touch-icon-precomposed.png')}}">
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
 
-  <link rel="shortcut icon" href="img/l/apple-touch-icon.png">
+  <link rel="shortcut icon" href="{{url_for('static', filename='img/l/apple-touch-icon.png')}}">
 
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
@@ -35,7 +35,7 @@
   <link href='http://fonts.googleapis.com/css?family=Wellfleet' rel='stylesheet' type='text/css'>
   <style type="text/css">
 
-   .start {
+   .start, #clouds-toggle {
       font-family: 'Wellfleet';
       font-size: 12pt;
       border: 0px solid white;
@@ -57,6 +57,12 @@
       bottom: 30px;
       right: 0px;
       -webkit-border-radius: 5px 0 0 5px;
+   }
+
+   #clouds-toggle {
+      top: 0px;
+      left: 0px;
+      opacity: 0.5;
    }
 
    #header {
@@ -138,6 +144,9 @@
       height: auto;     
    }
 
+   #cloud {
+      visibility: hidden;
+   }
   </style>
 
   <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
@@ -164,6 +173,7 @@
     <div id="counter">loading...</div>
   </h1>
 
+  <input type="button" id="clouds-toggle" value="clouds" />
   <input type="button" id="start-left" class="start" value="start" />
   <input type="button" id="start-right" class="start" value="start" />
 

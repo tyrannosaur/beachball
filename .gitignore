@@ -2,3 +2,4 @@ node_modules/
 build/
 *.py[oc]
 venv/
+*.swp

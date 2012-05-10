@@ -238,6 +238,8 @@ var app = {};
          $(Game).on('game.start game.unpause', function(e) {
             gravityLastInterval = setInterval(changeGravity, gravityDelay);
          });      
+
+         $(Game).triggHandler({type: 'game.loaded'});
       }
       else {
          $(Game).triggerHandler({type : 'game.notLoaded', reason : 'device gravity not supported in your browser'});
@@ -257,8 +259,9 @@ var app = {};
       numClouds : 4,
       targetFPS : 30
    }
-   
-   var w = $(window),
+  
+   var lastInterval = undefined, 
+       w = $(window),
        clouds = [],
        parsePx = function(x) { return parseFloat(x.replace(/px/i, '')); };
 
@@ -306,7 +309,13 @@ var app = {};
          clouds.push(c);
       }
 
-      setInterval(step, 1000 /  settings.targetFPS);
+      lastInterval = setInterval(step, 1000 /  settings.targetFPS);
+   }
+
+   Clouds.uninit = function() {
+      if (lastInterval != undefined) { clearInterval(lastInterval); }
+      $('#sea').children().remove();
+      clouds = [];
    }
 
    app.clouds = Clouds;
@@ -350,7 +359,7 @@ var app = {};
       });
    
       $(game).on('game.notLoaded', function(e) {
-         $('#counter').html(e.reason);
+         $('#counter').html(e.reason);         
          $('.start').fadeOut();      
       });
       
@@ -375,17 +384,31 @@ var app = {};
          }
       });
          
-      //app.clouds.init();   
-      game.init();      
-
-      $('.start').click(function() {
-         if (!running) {
-            running = true;
-            $('.start').fadeOut();
-            $(game).triggerHandler({type: 'game.start'});
-         }
+      $(game).on('game.loaded', function() {
+         $('#counter').html(title);
+         $('.start').click(function() {
+            if (!running) {
+               running = true;
+               $('.start').fadeOut();
+               $(game).triggerHandler({type: 'game.start'});
+            }
+         });
       });
+   
+      game.init();
 
-      $('#counter').text(title);
+      var toggled = false;
+
+      $('#clouds-toggle').click(function() {
+         if (toggled) {
+            $(this).attr('value', 'clouds');
+            app.clouds.uninit();            
+         }
+         else {
+            $(this).attr('value', 'no clouds');
+            app.clouds.init();
+         }
+         toggled = !toggled;
+      });    
    });
 })(app);
