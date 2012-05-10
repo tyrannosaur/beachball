@@ -257,6 +257,8 @@ var app = {};
 (function(app) {
    var settings = {
       numClouds : 4,
+      width : 90,
+      height : 50,
       targetFPS : 30
    }
   
@@ -299,9 +301,9 @@ var app = {};
          
          $('#sea').append(c.image);
                   
-         c.image.css('width', 90 * scale + 'px');
-         c.image.css('height', 50 * scale + 'px');
-         c.dx = (0.01 + scale * scale * scale * scale * 5) / settings.targetFPS;
+         c.image.css('width', settings.width * scale + 'px');
+         c.image.css('height', settings.height * scale + 'px');
+         c.dx = (0.01 + scale * scale * scale * scale * 3) / settings.targetFPS;
 
          c.image.css('left', parseInt(Math.random() * (w.width() - c.image.width())) + 'px');
          c.image.css('top', parseInt(Math.random() * (w.height() - c.image.height())) + 'px');
