@@ -5,7 +5,8 @@ var app = {};
       impulseMagnitude : 0.0001,
       targetFPS : 30,
       stepSize : 4,
-      beachHeight: 50
+      beachHeight: 50,
+      defaultGravity : {x : 0, y : 9.8}
    }
 
    var Game = function() {};
@@ -16,7 +17,7 @@ var app = {};
        gx = [],
        gy = [];
 
-   // Sensor function for when the beachball falls through the floor
+   // Callback for when a floor is hit.
    var onFloorHit = function(sensor, bodyA, bodyB) {
       var body;
       if (bodyA.id == '#beachball') { body = bodyA; }
@@ -27,6 +28,7 @@ var app = {};
       }
    };
 
+   // Callback for when a wall is hit.
    var onWallHit = function() {
       onFloorHit.apply(this, arguments);
    }
@@ -49,8 +51,7 @@ var app = {};
      world.world.ClearForces();                   
    }
 
-   // Smooth the gravity data from the device and change
-   // the gravity of the world.           
+   // Smooth the gravity data from the device and change the gravity of the world.           
    var changeGravity = function() {
       var sumx = 0,
           sumy = 0;
@@ -83,21 +84,23 @@ var app = {};
    // The initial position of the beachball
    var beachballPosition;
    
+   // The ratio between pixels and Box2D units (meters).
    Game.drawScale = function() {
       return world.drawScale;
    }
    
+   // Is the game running?
    Game.running = function() {
       return running;
    }
 
-   // Pause the simulation  
+   // Callback for when the game is paused.
    $(Game).on('game.pause', function() { 
       if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }
       running = false;
    });
       
-   // Start the simulation if it hasn't been started
+   // Start the simulation and game if it hasn't been started.
    $(Game).on('game.start game.startPhysics', function() {
       if (!running) { 
          worldLastInterval = setInterval(worldStep, 1000/settings.targetFPS);
@@ -105,7 +108,7 @@ var app = {};
       }
    });
       
-   // Reset the simulation
+   // Reset the game.
    $(Game).on('game.reset', function(msg) {
       if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }
       bodies.beachball.SetAngularVelocity(0);
@@ -120,7 +123,7 @@ var app = {};
       running = false;
    });
       
-   // Call when the DOM has been fully loaded and the game needs to
+   // Call this when the DOM has been fully loaded and the game needs to
    // be initialized.
    Game.init = function() {
       var w = $(window),
@@ -133,13 +136,10 @@ var app = {};
          y : '100px'
       }
 
-      // Set up the box2d components
+      // Set up the Box2D components
       world = box2dw.world({
          drawScale : w.width(),
-         gravity : {
-            x : 0,
-            y : 9.8
-         }
+         gravity : settings.defaultGravity
       });      
 
       // Reposition the sand
@@ -222,6 +222,7 @@ var app = {};
          })   
       }
     
+      // Add device gravity callbacks.
       if (window.DeviceMotionEvent != undefined) {
          var gravityLastInterval,
              gravityDelay = 100;
@@ -257,15 +258,24 @@ var app = {};
 (function(app) {
    var settings = {
       numClouds : 4,
-      width : 90,
-      height : 50,
-      targetFPS : 30
+      width : 90,       // Cloud image width    TODO: get these from jQuery
+      height : 50,      // Cloud image height
+      targetFPS : 30,
+      scaleMin : 0.5,
+      scaleMax : 1.5,
+      parallaxScale : 10
    }
   
    var lastInterval = undefined, 
        w = $(window),
-       clouds = [],
-       parsePx = function(x) { return parseFloat(x.replace(/px/i, '')); };
+       clouds = [];
+
+   // A function to turn pixel measurement strings into numbers
+   // '100px' => 100       
+   // '0.5px' => 0.5
+   var parsePx = function(x) { 
+         return parseFloat(x.replace(/px/i, ''));          
+   };
 
    var step = function() {
       $.each(clouds, function(key, cloud) {       
@@ -293,7 +303,7 @@ var app = {};
    Clouds.init = function() {
       for (var i=0; i<settings.numClouds; i++) {
          var c = {},
-             scale = (50 + (Math.random() * 150)) / 100;
+             scale = (settings.scaleMin + (Math.random() * settings.scaleMax));
 
          c.image = $('#cloud').clone();
          c.image.attr('id', null);
@@ -303,7 +313,9 @@ var app = {};
                   
          c.image.css('width', settings.width * scale + 'px');
          c.image.css('height', settings.height * scale + 'px');
-         c.dx = (1 + ((scale - 0.5)/1.5) * 10) / settings.targetFPS;
+         
+         // Parallax effect
+         c.dx = (1 + ((scale - settings.scaleMin)/settings.scaleMax) * settings.parallaxScale) / settings.targetFPS;
 
          c.image.css('left', parseInt(Math.random() * (w.width() - c.image.width())) + 'px');
          c.image.css('top', parseInt(Math.random() * (w.height() - c.image.height())) + 'px');
