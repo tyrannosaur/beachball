@@ -100,9 +100,12 @@ var app = {};
           switch(window.orientation) {        
             // Reverse x and y
             case 90:
+              gx.push(e.accelerationIncludingGravity.-y);
+              gy.push(e.accelerationIncludingGravity.x);
+              break;
             case -90:
               gx.push(e.accelerationIncludingGravity.y);
-              gy.push(e.accelerationIncludingGravity.x);            
+              gy.push(e.accelerationIncludingGravity.-x);            
               break;
             default:
               gx.push(e.accelerationIncludingGravity.x);
@@ -130,10 +133,9 @@ var app = {};
             
       // We can survive without orientation changes
       if (window.orientation != undefined && !orientationInited) {          
-        var reset = function() {
-          originalOrientation = window.orientation;
-          Game.uninit();
-          Game.init();
+        var reset = function(orientation) {
+          originalOrientation = orientation;
+          Game.uninit(Game.init);        
         }
 
         orientationInited = true;        
@@ -144,7 +146,7 @@ var app = {};
           if (window.orientation != originalOrientation) {
             // Just do it
             if (!Game.running()) {
-               reset();
+               reset(window.orientation);
             }
             else {
                $(Game).trigglerHandler({
@@ -159,7 +161,7 @@ var app = {};
         }           
         
         $(Game).on('game.unpause', function() {
-            if (window.orientation != originalOrientation) { reset(); }
+            if (window.orientation != originalOrientation) { reset(window.orientation); }
         });
       }
    }
@@ -326,10 +328,11 @@ var app = {};
    };        
 
    // Uninitialize the game
-   Game.uninit = function() {      
+   Game.uninit = function(done) {      
       $.when($(Game).triggerHandler({type : 'game.unload'}))
        .done(function() {          
-          world = undefined;        
+          world = undefined;  
+          if (typeof done === 'function') { done(); }      
       });
    }
 
