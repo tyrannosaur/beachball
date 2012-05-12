@@ -130,15 +130,27 @@ var app = {};
             
       // We can survive without orientation changes
       if (window.onorientationchange != undefined && !orientationInit) {  
+        var reset = functino() {
+          originalOrientation = window.orientation;
+          Game.uninit();
+          Game.init();
+        }
+
         orientationInit = true;        
-        originalOrientation = window.orientation;    
-        
+        originalOrientation = window.orientation;                    
+
         window.onorientationchange = function() {
           if (window.orientation != originalOrientation) {
-            $(Game).trigglerHandler({
-              type : 'game.pause',
-              reason : 'orientation changed and the game will reset!<br/><h3>rotate back to unpause</h3>'
-            });                       
+            // Just do it
+            if (!Game.running()) {
+               reset();
+            }
+            else {
+               $(Game).trigglerHandler({
+                 type : 'game.pause',
+                 reason : 'orientation changed and the game will reset!<br/><h3>rotate back to unpause</h3>'
+               });                       
+            }
           }
           else {
             $(Game).triggerHandler({type : 'game.unpause'});
@@ -146,11 +158,7 @@ var app = {};
         }           
         
         $(Game).on('game.unpause', function() {
-            if (window.orientation != originalOrientation) {
-              originalOrientation = window.orientation;
-              Game.uninit();
-              Game.init();
-            }
+            if (window.orientation != originalOrientation) { reset(); }
         });
       }
    }
@@ -378,7 +386,7 @@ var app = {};
    };
 
    Clouds.init = function() {
-      settings.cloudNode.load(function() {
+      settings.cloudNode.ready(function() {
         for (var i=0; i<settings.numClouds; i++) {
            var c = {},
                scale = (settings.scaleMin + (Math.random() * settings.scaleMax));
@@ -448,11 +456,12 @@ var app = {};
         }
       });   
 
-      $(game).on('game.pause', function() {
+      $(game).on('game.pause', function(e) {
          if (started) {
             if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };            
             $('.pause-unpause').attr('value', 'unpause')
                                .fadeIn();
+            if (e.reason) { $('#counter').html(e.reason); }
             started = false;
          }
       });
