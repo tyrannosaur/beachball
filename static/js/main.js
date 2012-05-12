@@ -85,8 +85,8 @@ var app = {};
      
    var gravityLastInterval,
        gravityDelay = 100,
-       gravityInit = false,
-       orientationInit = false,
+       gravityInited = false,
+       orientationInited = false,
        originalOrientation;
    
    var initGravityCallbacks = function() {         
@@ -94,7 +94,7 @@ var app = {};
           return 'device gravity not supported in your browser';
    
       if (!gravityInit) {
-        gravityInit = true;      
+        gravityInited = true;      
         
         window.ondevicemotion = function (e) {
           switch(window.orientation) {        
@@ -129,14 +129,15 @@ var app = {};
       //       require a restart
             
       // We can survive without orientation changes
-      if (window.onorientationchange != undefined && !orientationInit) {  
+      if (window.onorientationchange != undefined && !orientationInited) {  
+        console.log('orientation detected');
         var reset = function() {
           originalOrientation = window.orientation;
           Game.uninit();
           Game.init();
         }
 
-        orientationInit = true;        
+        orientationInited = true;        
         originalOrientation = window.orientation;                    
 
         window.onorientationchange = function() {
