@@ -385,8 +385,8 @@ var app = {};
    var Clouds = function() {
    };
 
-   Clouds.init = function() {
-      settings.cloudNode.ready(function() {
+   var cloudsLoaded = false;
+   var cloudsInit = function() {
         for (var i=0; i<settings.numClouds; i++) {
            var c = {},
                scale = (settings.scaleMin + (Math.random() * settings.scaleMax));
@@ -409,14 +409,24 @@ var app = {};
            clouds.push(c);
         }
 
-        lastInterval = setInterval(step, 1000 /  settings.targetFPS);
-      });
+        lastInterval = setInterval(step, 1000 /  settings.targetFPS);  
+        cloudsLoaded = true;
+   }
+
+   Clouds.init = function() {
+      if (!cloudsLoaded) {
+         settings.cloudNode.load(cloudsInit);
+      }
+      else {
+         cloudsInit();
+      }
    }
 
    Clouds.uninit = function() {
       if (lastInterval != undefined) { clearInterval(lastInterval); }
       settings.containerNode.children().remove();
       clouds = [];
+      settings.cloudNode.unbind('ready.game load.game');
    }
 
    app.clouds = Clouds;
