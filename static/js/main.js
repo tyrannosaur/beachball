@@ -39,7 +39,6 @@ var app = {};
    }
 
    var worldStep = function() {    
-     return; 
      world.world.Step(1/settings.targetFPS, settings.stepSize, settings.stepSize);
               
      $.each(world.bodies, function(i, body) {                     
@@ -58,6 +57,7 @@ var app = {};
 
    // Smooth the gravity data from the device and change the gravity of the world.           
    var changeGravity = function() {
+      return;
       var sumx = 0,
           sumy = 0;
 
