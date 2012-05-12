@@ -1,5 +1,6 @@
 var app = {};
 
+/** The game itself **/
 (function(app) {  
    var settings = {
       impulseMagnitude : 0.0001,
@@ -35,20 +36,21 @@ var app = {};
 
    var worldLastInterval;
    var worldStep = function() {
-     world.world.Step(1/30, settings.stepSize, settings.stepSize);
      
+     world.world.Step(1/settings.targetFPS, settings.stepSize, settings.stepSize);
+              
      $.each(world.bodies, function(i, body) {                     
          if (body.id != undefined) {                  
             var pos = body.GetPosition(),
                 obj = $(body.id);
-                   
+
             obj.css('left', pos.x * world.drawScale - obj.width()/2 + 'px');
-            obj.css('top', pos.y * world.drawScale + 'px');       
-            obj.rotate(body.GetAngle() / Math.PI * 180);
+            obj.css('top', pos.y * world.drawScale + 'px');                                           
+            obj.rotate(body.GetAngle(), 'rad');
          }
      });    
 
-     world.world.ClearForces();                   
+     world.world.ClearForces();                            
    }
 
    // Smooth the gravity data from the device and change the gravity of the world.           
@@ -80,6 +82,78 @@ var app = {};
          bodies.beachball.GetWorldCenter());
       }
    };   
+     
+   var gravityLastInterval,
+       gravityDelay = 100,
+       gravityInit = false,
+       orientationInit = false,
+       originalOrientation;
+   
+   var initGravityCallbacks = function() {         
+      if (window.DeviceMotionEvent == undefined)
+          return 'device gravity not supported in your browser';
+   
+      if (!gravityInit) {
+        gravityInit = true;      
+        
+        window.ondevicemotion = function (e) {
+          switch(window.orientation) {        
+            // Reverse x and y
+            case 90:
+            case -90:
+              gx.push(e.accelerationIncludingGravity.y);
+              gy.push(e.accelerationIncludingGravity.x);            
+              break;
+            default:
+              gx.push(e.accelerationIncludingGravity.x);
+              gy.push(e.accelerationIncludingGravity.y);
+              break;
+            }
+        }
+
+        $(Game).on('game.reset game.unload game.pause', function(e) {
+          if (gravityLastInterval != undefined) { clearInterval(gravityLastInterval); };
+        });
+
+        $(Game).on('game.start game.unpause', function(e) {
+          gravityLastInterval = setInterval(changeGravity, gravityDelay);
+        });                    
+      }
+   }
+   
+   var initOrientationCallbacks = function() {
+      // Detect when device orientation changes and warn that the game will be
+      // restarted (unless, of course, the original orientation is restored)
+      
+      // TODO: tweak Box2D so that orientation changes are seamless and don't
+      //       require a restart
+            
+      // We can survive without orientation changes
+      if (window.onorientationchange != undefined && !orientationInit) {  
+        orientationInit = true;        
+        originalOrientation = window.orientation;    
+        
+        window.onorientationchange = function() {
+          if (window.orientation != originalOrientation) {
+            $(Game).trigglerHandler({
+              type : 'game.pause',
+              reason : 'orientation changed and the game will reset!<br/><h3>rotate back to unpause</h3>'
+            });                       
+          }
+          else {
+            $(Game).triggerHandler({type : 'game.unpause'});
+          }
+        }           
+        
+        $(Game).on('game.unpause', function() {
+            if (window.orientation != originalOrientation) {
+              originalOrientation = window.orientation;
+              Game.uninit();
+              Game.init();
+            }
+        });
+      }
+   }
    
    // The initial position of the beachball
    var beachballPosition;
@@ -101,7 +175,7 @@ var app = {};
    });
       
    // Start the simulation and game if it hasn't been started.
-   $(Game).on('game.start game.startPhysics', function() {
+   $(Game).on('game.unpause game.start game.startPhysics', function() {
       if (!running) { 
          worldLastInterval = setInterval(worldStep, 1000/settings.targetFPS);
          running = true;
@@ -109,7 +183,7 @@ var app = {};
    });
       
    // Reset the game.
-   $(Game).on('game.reset', function(msg) {
+   $(Game).on('game.reset game.unload', function(msg) {
       if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }
       bodies.beachball.SetAngularVelocity(0);
       bodies.beachball.SetLinearVelocity({
@@ -122,7 +196,7 @@ var app = {};
       }, 0);      
       running = false;
    });
-      
+
    // Call this when the DOM has been fully loaded and the game needs to
    // be initialized.
    Game.init = function() {
@@ -150,7 +224,7 @@ var app = {};
 
       beachball.css('left', w.width()/2 - beachball.width()/2 + 'px');
 
-      var beachRadius = parseInt(/([0-9]+)/.exec(dangerZone.css('-webkit-border-top-left-radius'))[1]),
+      var beachRadius = dangerZone.cornerRadius(),
           beachFlat = dangerZone.width() - beachRadius*2;
 
       // Set up the bodies.
@@ -197,8 +271,7 @@ var app = {};
             x : w.width()/2 + 'px',
             y : w.height() - settings.beachHeight + beachRadius + 'px',
             width : beachFlat + 'px',
-            height : beachRadius * 2 + 'px',
-            id : '#dangerZone'
+            height : beachRadius * 2 + 'px'            
          }),
          beachCapRight : world.body({
             shape : 'circle',
@@ -221,49 +294,53 @@ var app = {};
             id : '#beachball'
          })   
       }
+  
+      var checks = [];
+      checks.push(initOrientationCallbacks());
+      checks.push(initGravityCallbacks());
     
-      // Add device gravity callbacks.
-      if (window.DeviceMotionEvent != undefined) {
-         var gravityLastInterval,
-             gravityDelay = 100;
-             
-         window.ondevicemotion = function (e) {
-            gx.push(e.accelerationIncludingGravity.x);
-            gy.push(e.accelerationIncludingGravity.y);
-         }
-         
-         $(Game).on('game.reset game.stop game.pause', function(e) {
-            if (gravityLastInterval != undefined) { clearInterval(gravityLastInterval); };
-         });
-
-         $(Game).on('game.start game.unpause', function(e) {
-            gravityLastInterval = setInterval(changeGravity, gravityDelay);
-         });      
-
-         $(Game).triggerHandler({type: 'game.loaded'});
+      var reasons = [];
+      for (var i in checks) {
+        if (typeof checks[i] === 'string') { reasons.push(checks[i]); }
       }
+    
+      if (reasons.length > 0) {
+        $(Game).triggerHandler({
+          type: 'game.notLoaded',
+          reason : reasons.join('<br/>')
+        });     
+      }                     
       else {
-         $(Game).triggerHandler({type : 'game.notLoaded', reason : 'device gravity not supported in your browser'});
+        $(Game).triggerHandler({type : 'game.startPhysics'}); 
+        $(Game).triggerHandler({type: 'game.loaded'});        
       }
-      // Start the simulation
-      $(Game).triggerHandler({type : 'game.startPhysics'});
    };        
+
+   // Uninitialize the game
+   Game.uninit = function() {      
+      $.when($(Game).triggerHandler({type : 'game.unload'}))
+       .done(function() {          
+          world = undefined;        
+      });
+   }
 
    app.game = Game;
    app.settings = settings;   
     
 })(app);
 
-// Clouds
+/** Clouds **/
 (function(app) {
    var settings = {
       numClouds : 4,
-      width : 90,       // Cloud image width    TODO: get these from jQuery
-      height : 50,      // Cloud image height
       targetFPS : 30,
       scaleMin : 0.5,
       scaleMax : 1.5,
-      parallaxScale : 10
+      parallaxMin : 1,
+      parallaxScale : 10,
+      parallaxPower : 2,
+      cloudNode : $('#cloud'),
+      containerNode : $('#sea')      
    }
   
    var lastInterval = undefined, 
@@ -301,34 +378,36 @@ var app = {};
    };
 
    Clouds.init = function() {
-      for (var i=0; i<settings.numClouds; i++) {
-         var c = {},
-             scale = (settings.scaleMin + (Math.random() * settings.scaleMax));
+      settings.cloudNode.load(function() {
+        for (var i=0; i<settings.numClouds; i++) {
+           var c = {},
+               scale = (settings.scaleMin + (Math.random() * settings.scaleMax));
 
-         c.image = $('#cloud').clone();
-         c.image.attr('id', null);
-         c.image.css('position', 'fixed');
-         
-         $('#sea').append(c.image);
-                  
-         c.image.css('width', settings.width * scale + 'px');
-         c.image.css('height', settings.height * scale + 'px');
-         
-         // Parallax effect
-         c.dx = (1 + ((scale - settings.scaleMin)/settings.scaleMax) * settings.parallaxScale) / settings.targetFPS;
+           c.image = settings.cloudNode.clone();
+           c.image.attr('id', null);
+           c.image.css('position', 'fixed');
+           
+           settings.containerNode.append(c.image);
+                    
+           c.image.css('width', settings.cloudNode[0].width * scale + 'px');
+           c.image.css('height', settings.cloudNode[0].height * scale + 'px');
+           
+           // Parallax effect
+           c.dx = Math.pow((settings.parallaxMin + ((scale - settings.scaleMin)/settings.scaleMax) * settings.parallaxScale), settings.parallaxPower) / settings.targetFPS;
 
-         c.image.css('left', parseInt(Math.random() * (w.width() - c.image.width())) + 'px');
-         c.image.css('top', parseInt(Math.random() * (w.height() - c.image.height())) + 'px');
+           c.image.css('left', parseInt(Math.random() * (w.width() - c.image.width())) + 'px');
+           c.image.css('top', parseInt(Math.random() * (w.height() - c.image.height())) + 'px');
 
-         clouds.push(c);
-      }
+           clouds.push(c);
+        }
 
-      lastInterval = setInterval(step, 1000 /  settings.targetFPS);
+        lastInterval = setInterval(step, 1000 /  settings.targetFPS);
+      });
    }
 
    Clouds.uninit = function() {
       if (lastInterval != undefined) { clearInterval(lastInterval); }
-      $('#sea').children().remove();
+      settings.containerNode.children().remove();
       clouds = [];
    }
 
@@ -336,7 +415,7 @@ var app = {};
 
 })(app);
 
-// UI
+/** UI **/
 (function(app) {
    $(document).ready(function() {
       var title = 'beachball madness!';
@@ -344,8 +423,8 @@ var app = {};
       var game = app.game,      
           counterLastInterval,
           c = 0,
-          delay = 50,
-          running = false,
+          delay = 50,   
+          started = false,                
           counter = $('#counter');
                 
       var step = function() {
@@ -353,23 +432,29 @@ var app = {};
         c += 1/delay;
       }      
       
-      $(game).on('game.reset game.stop', function(e) {
+      $(game).on('game.reset game.unload', function(e) {        
          if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
          counter.html(e.message || title);   
-         c = 0;
-         $('.start').fadeIn();
-         running = false;
+         c = 0;                  
+         $('.start').fadeIn();         
       });
 
-      $(game).on('game.start game.unpause', function() {
-         counterLastInterval = setInterval(step, delay);
-         step();
-         running = true;
+      $(game).on('game.start game.unpause', function() {   
+        if (!started) {
+          counterLastInterval = setInterval(step, delay);
+          step();
+          $('.pause-unpause').fadeOut();            
+          started = true;
+        }
       });   
 
       $(game).on('game.pause', function() {
-         if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
-         running = false;
+         if (started) {
+            if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };            
+            $('.pause-unpause').attr('value', 'unpause')
+                               .fadeIn();
+            started = false;
+         }
       });
    
       $(game).on('game.notLoaded', function(e) {
@@ -378,8 +463,7 @@ var app = {};
       });
       
       $(game).on('game.wallHit', function(e) {
-         if (running) {
-            running = false;
+         if (started) {            
             var drawScale = game.drawScale(),
                 w = $(window);         
          
@@ -393,37 +477,59 @@ var app = {};
                            $(this).fadeOut(800, function() {
                               var time = c.toFixed(2);
                               $(game).triggerHandler({type : 'game.reset', message : time + '<h3>final time</h3>'});
+                              started = false;
                            });                           
                         });                      
          }
       });
+
+      $(game).on('game.unload', function() {
+         $('#counter').html(title);
+         $('.start').unbind('click.game')
+                    .fadeOut(); 
+         $('.pause-unpause').unbind('click.game')
+                    .fadeOut();
+      });
          
       $(game).on('game.loaded', function() {
          $('#counter').html(title);
-         $('.start').click(function() {
-            if (!running) {
-               running = true;
+         
+         $('.start').bind('click.game', function() {
+            if (!started) {               
+               stated = true;
                $('.start').fadeOut();
                $(game).triggerHandler({type: 'game.start'});
             }
-         });    
-
-         var toggled = false;
-
-         $('#clouds-toggle').click(function() {
-            if (toggled) {
-               $(this).attr('value', 'clouds');
-               app.clouds.uninit();            
+         })
+         .fadeIn();
+         
+         $('.pause-unpause').bind('click.game', function() {
+            if (started) {
+                $(this).fadeIn();
+                $(game).triggerHandler({type : 'game.pause'});
             }
             else {
-               $(this).attr('value', 'no clouds');
-               app.clouds.init();
+                $(this).fadeOut();
+                $(game).triggerHandler({type : 'game.unpause'});
             }
-            toggled = !toggled;
-         })
-         .click();
+         });
       });
 
-      game.init();
+      var toggled = false;
+
+      $('#clouds-toggle').bind('click.game', function() {                     
+          if (toggled) {
+             $(this).attr('value', 'clouds');
+             app.clouds.uninit();            
+          }
+          else {          
+             $(this).attr('value', 'no clouds');
+             app.clouds.init();             
+          }
+          toggled = !toggled;
+      })
+      .click();      
+
+      game.init();      
    });
 })(app);
