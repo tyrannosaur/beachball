@@ -2,7 +2,7 @@
 
 A simple HTML5 game. Keep the beachball balanced on the beach!
 
-# Installation
+## Installation
 
 Create a virtualenv environment and install Flask
 ```shell
