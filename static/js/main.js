@@ -100,12 +100,12 @@ var app = {};
           switch(window.orientation) {        
             // Reverse x and y
             case 90:
-              gx.push(e.accelerationIncludingGravity.-y);
+              gx.push(-e.accelerationIncludingGravity.y);
               gy.push(e.accelerationIncludingGravity.x);
               break;
             case -90:
               gx.push(e.accelerationIncludingGravity.y);
-              gy.push(e.accelerationIncludingGravity.-x);            
+              gy.push(-e.accelerationIncludingGravity.x);            
               break;
             default:
               gx.push(e.accelerationIncludingGravity.x);
