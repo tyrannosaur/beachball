@@ -57,7 +57,6 @@ var app = {};
 
    // Smooth the gravity data from the device and change the gravity of the world.           
    var changeGravity = function() {
-      return;
       var sumx = 0,
           sumy = 0;
 
@@ -211,6 +210,7 @@ var app = {};
       }        
    
       $(window).on('devicemotion.game', function(e) {
+          return
           switch(window.orientation) {        
             // Reverse x and y
             case 90:
