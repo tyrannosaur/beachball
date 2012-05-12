@@ -575,7 +575,7 @@ var app = {};
       Game.difficulty(difficulties[difficulty];
 
       $('#difficulty-toggle').on('click.game', function() {
-         difficulty = (difficulty + 1) % difficulties.length;\
+         difficulty = (difficulty + 1) % difficulties.length;
          
          Game.difficulty(difficulties[difficulty];
          $(this).attr('value', difficulties[difficulty]);
