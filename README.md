@@ -1,7 +1,8 @@
-beachball
-=========
+# beachball
 
 A simple HTML5 game. Keep the beachball balanced on the beach!
+
+# Installation
 
 Create a virtualenv environment and install Flask
 ```shell
@@ -19,3 +20,5 @@ or foreman
 ```python
 foreman start
 ```
+
+The application can be pushed to Heroku too.
