@@ -210,10 +210,7 @@ var app = {};
       }        
    
       $(window).on('devicemotion.game', function(e) {
-          console.log(e);
-          console.log(e.accelerationIncludingGravity);
-          console.log(e.acceleration);
-          return;
+          e = e.originalEvent;
           switch(window.orientation) {        
             // Reverse x and y
             case 90:
