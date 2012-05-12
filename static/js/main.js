@@ -147,7 +147,7 @@ var app = {};
                reset(window.orientation);
             }
             else {
-               $(Game).trigglerHandler({
+               $(Game).triggerHandler({
                  type : 'game.pause',
                  reason : 'orientation changed and the game will reset!<br/><h3>rotate back to unpause</h3>'
                });                       
@@ -173,9 +173,10 @@ var app = {};
    }
    
    // Is the game running?
+   // TODO: this is confusing as it really means "is Box2D running?"
    Game.running = function() {
       return running;
-   }
+   }   
 
    // Callback for when the game is paused.
    $(Game).on('game.pause', function() { 
