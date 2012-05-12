@@ -93,7 +93,7 @@ var app = {};
       if (window.DeviceMotionEvent == undefined)
           return 'device gravity not supported in your browser';
    
-      if (!gravityInit) {
+      if (!gravityInited){
         gravityInited = true;      
         
         window.ondevicemotion = function (e) {
