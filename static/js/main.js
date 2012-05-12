@@ -96,7 +96,7 @@ var app = {};
       if (!gravityInited){
         gravityInited = true;      
         
-        window.ondevicemotion = function (e) {
+        window.addEventListener('devicemotion', function (e) {
           switch(window.orientation) {        
             // Reverse x and y
             case 90:
@@ -112,7 +112,7 @@ var app = {};
               gy.push(e.accelerationIncludingGravity.y);
               break;
             }
-        }
+        }, false);
 
         $(Game).on('game.reset game.unload game.pause', function(e) {
           if (gravityLastInterval != undefined) { clearInterval(gravityLastInterval); };
@@ -131,18 +131,16 @@ var app = {};
       // TODO: tweak Box2D so that orientation changes are seamless and don't
       //       require a restart
             
-      // We can survive without orientation changes
       if (window.orientation != undefined && !orientationInited) {          
-        var reset = function(orientation) {
-          originalOrientation = orientation;
+        var reset = function(newOrientation) {
+          originalOrientation = neworientation;
           Game.uninit(Game.init);        
         }
 
         orientationInited = true;        
         originalOrientation = window.orientation;                    
 
-        // only works on iOS devices
-        window.onorientationchange = function() {
+        window.addEventListener('orientationchange', function() {
           if (window.orientation != originalOrientation) {
             // Just do it
             if (!Game.running()) {
@@ -158,7 +156,7 @@ var app = {};
           else {
             $(Game).triggerHandler({type : 'game.unpause'});
           }
-        }           
+        }, false);   
         
         $(Game).on('game.unpause', function() {
             if (window.orientation != originalOrientation) { reset(window.orientation); }
@@ -210,7 +208,7 @@ var app = {};
 
    // Call this when the DOM has been fully loaded and the game needs to
    // be initialized.
-   Game.init = function() {
+   Game.init = function(done) {
       var w = $(window),
           beachball = $('#beachball'),
           safeZone = $('#safe-zone'),
@@ -325,6 +323,8 @@ var app = {};
         $(Game).triggerHandler({type : 'game.startPhysics'}); 
         $(Game).triggerHandler({type: 'game.loaded'});        
       }
+
+      if (typeof done === 'function') { done(); }
    };        
 
    // Uninitialize the game
