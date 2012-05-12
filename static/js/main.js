@@ -129,8 +129,7 @@ var app = {};
       //       require a restart
             
       // We can survive without orientation changes
-      if (window.onorientationchange != undefined && !orientationInited) {  
-        console.log('orientation detected');
+      if (window.orientation != undefined && !orientationInited) {          
         var reset = function() {
           originalOrientation = window.orientation;
           Game.uninit();
@@ -140,6 +139,7 @@ var app = {};
         orientationInited = true;        
         originalOrientation = window.orientation;                    
 
+        // only works on iOS devices
         window.onorientationchange = function() {
           if (window.orientation != originalOrientation) {
             // Just do it
@@ -484,6 +484,7 @@ var app = {};
       
       $(game).on('game.wallHit', function(e) {
          if (started) {            
+            started = false;
             var drawScale = game.drawScale(),
                 w = $(window);         
          
@@ -497,7 +498,6 @@ var app = {};
                            $(this).fadeOut(800, function() {
                               var time = c.toFixed(2);
                               $(game).triggerHandler({type : 'game.reset', message : time + '<h3>final time</h3>'});
-                              started = false;
                            });                           
                         });                      
          }
