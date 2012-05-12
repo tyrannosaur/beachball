@@ -7,35 +7,30 @@
 <head>
   <meta charset="utf-8">
 
-  <!-- Use the .htaccess and remove these lines to avoid edge case issues.
-       More info: h5bp.com/i/378 -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
   <title>beachball madness!</title>
-  <meta name="description" content="">
-
-  <!-- Mobile viewport optimized: h5bp.com/viewport -->
-  <meta name="viewport" content="width=device-width">
-
+  <meta name="description" content="beachball madness!">
   <meta name="HandheldFriendly" content="True">
   <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
  
   <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{url_for('static', filename='img/h/apple-touch-icon.png')}}">
   <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{url_for('static', filename='img/m/apple-touch-icon.png')}}">
   <link rel="apple-touch-icon-precomposed" href="{{url_for('static', filename='img/l/apple-touch-icon-precomposed.png')}}">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-
   <link rel="shortcut icon" href="{{url_for('static', filename='img/l/apple-touch-icon.png')}}">
 
-  <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
-
-  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
   <link href='http://fonts.googleapis.com/css?family=Wellfleet' rel='stylesheet' type='text/css'>
   <style type="text/css">
 
-   .start, #clouds-toggle {
+    body {
+      padding: 0px;
+      margin: 0px;
+    }
+
+   .pause-unpause, .start, #clouds-toggle {
       font-family: 'Wellfleet';
       font-size: 12pt;
       border: 0px solid white;
@@ -47,16 +42,20 @@
       z-index: 7;
    }
 
-   #start-left {
+   #start-left, #pause-unpause-left {
       bottom: 30px;
       left: 0px;
       -webkit-border-radius: 0 5px 5px 0;   
+      -moz-border-radius: 0 5px 5px 0;   
+      border-radius: 0 5px 5px 0;   
    }
 
-   #start-right {
+   #start-right, #pause-unpause-right {
       bottom: 30px;
       right: 0px;
       -webkit-border-radius: 5px 0 0 5px;
+      -moz-border-radius: 5px 0 0 5px;
+      border-radius: 5px 0 0 5px;
    }
 
    #clouds-toggle {
@@ -104,19 +103,25 @@
    }
 
    .safe {
+      bottom: 0px;
+      left: -50%;   
       width: 200px;
-      height: 200px;
-      bottom: 50px;
+      height: 200px;      
       -webkit-border-radius: 50px;
+      -moz-border-radius: 50px;
+      border-radius: 50px;
       background-color: #bd8633; 
       z-index: 4;
    }
 
    .danger {
+      bottom: 0px;
+      left: -50%;    
       width: 300px;
-      height: 200px;
-      bottom: 50px;
+      height: 200px;      
       -webkit-border-radius: 100px;
+      -moz-border-radius: 100px;
+      border-radius: 100px;
       background-color: #82521f;
       z-index: 3;
    }
@@ -124,6 +129,8 @@
    #sea {
       width: 100%;
       height: 100%;
+      background-image: linear-gradient(bottom, rgb(22,217,235) 44%, rgb(20,169,250) 72%);      
+      background-image: -moz-linear-gradient(bottom, rgb(22,217,235) 44%, rgb(20,169,250) 72%);      
       background-image: -webkit-linear-gradient(bottom, rgb(22,217,235) 44%, rgb(20,169,250) 72%);      
       background-image: -webkit-gradient(
          linear,
@@ -145,15 +152,10 @@
    }
 
    #cloud {
-      visibility: hidden;
+      display: none;
    }
   </style>
 
-  <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
-
-  <!-- All JavaScript at the bottom, except this Modernizr build.
-       Modernizr enables HTML5 elements & feature detects for optimal performance.
-       Create your own custom Modernizr build: www.modernizr.com/download/ -->
   <script src="{{url_for('static', filename='js/vendor/modernizr-2.5.3.min.js')}}"></script>
 </head>
 <body>
@@ -174,10 +176,13 @@
   </h1>
 
   <input type="button" id="clouds-toggle" value="clouds" />
+  
   <input type="button" id="start-left" class="start" value="start" />
   <input type="button" id="start-right" class="start" value="start" />
+  
+  <input type="button" id="pause-unpause-left" style="display:none;" class="pause-unpause" value="" />
+  <input type="button" id="pause-unpause-right" style="display:none;" class="pause-unpause" value="" />  
 
-  <!-- scripts concatenated and minified via build script -->
   <script src="{{url_for('static', filename='js/vendor/jquery-1.7.2.min.js')}}"></script>
   <script src="{{url_for('static', filename='js/box2d.js')}}"></script>
   <script src="{{url_for('static', filename='js/box2dw.js')}}"></script>
