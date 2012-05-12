@@ -130,7 +130,7 @@ var app = {};
             
       // We can survive without orientation changes
       if (window.onorientationchange != undefined && !orientationInit) {  
-        var reset = functino() {
+        var reset = function() {
           originalOrientation = window.orientation;
           Game.uninit();
           Game.init();
