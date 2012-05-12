@@ -210,7 +210,10 @@ var app = {};
       }        
    
       $(window).on('devicemotion.game', function(e) {
-          return
+          console.log(e);
+          console.log(e.accelerationIncludingGravity);
+          console.log(e.acceleration);
+          return;
           switch(window.orientation) {        
             // Reverse x and y
             case 90:
@@ -225,7 +228,7 @@ var app = {};
               gx.push(e.accelerationIncludingGravity.x);
               gy.push(e.accelerationIncludingGravity.y);
               break;
-            }
+         }
       });
 
       $(Game).on('game.reset game.unloaded game.pause', function(e) {
