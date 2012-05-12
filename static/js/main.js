@@ -7,6 +7,7 @@ var app = {};
       targetFPS : 30,
       stepSize : 4,
       beachHeight: 50,
+      gravityScale : 1,
       defaultGravity : {x : 0, y : 9.8}
    }
    
@@ -69,6 +70,9 @@ var app = {};
       gx = [];
       gy = [];
 
+      sumx *= settings.gravityScale;
+      sumy *= settings.gravityScale;
+
       if (!isNaN(sumx) && !isNaN(sumy)) {
          world.gravity({
             x : sumx,
@@ -84,6 +88,28 @@ var app = {};
          bodies.beachball.GetWorldCenter());
       }
    };   
+   
+   Game.difficulty = function() {
+      if (arguments[0]) {
+         var scale;
+         switch(arguments[0]) {
+            case 'easy':
+               scale = 0.5;
+               break;
+            case 'medium':
+               scale = 0.75;
+               break;
+            case 'hard':
+               scale = 1.0;
+               break;
+         }
+         settings.gravityScale = scale;
+         settings.difficulty = arguments[0];
+      }
+      else {
+         return settings.difficulty; 
+      }
+   }
    
    // The ratio between pixels and Box2D units (meters).
    Game.drawScale = function() {
@@ -471,7 +497,6 @@ var app = {};
       
       $(game).on('game.wallHit', function(e) {
          if (started) {            
-            console.log(e.body);            
             started = false;
             var drawScale = game.drawScale(),
                 w = $(window);         
@@ -522,7 +547,7 @@ var app = {};
                 $(this).fadeOut();
                 $(game).triggerHandler('game.unpause');
             }
-         });
+         });         
       });
 
       var toggled = false;
@@ -539,6 +564,22 @@ var app = {};
           toggled = !toggled;
       })
       .click();      
+
+      var difficulty = 2,
+          difficulties = [
+            'easy',
+            'medium',
+            'hard'
+          ];
+
+      Game.difficulty(difficulties[difficulty];
+
+      $('#difficulty-toggle').on('click.game', function() {
+         difficulty = (difficulty + 1) % difficulties.length;\
+         
+         Game.difficulty(difficulties[difficulty];
+         $(this).attr('value', difficulties[difficulty]);
+      });
 
       game.load();      
    });

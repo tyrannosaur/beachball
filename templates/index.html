@@ -31,7 +31,7 @@
       margin: 0px;
     }
 
-   .pause-unpause, .start, #clouds-toggle {
+   .pause-unpause, .start, #clouds-toggle, #difficulty-toggle {
       font-family: 'Wellfleet';
       font-size: 12pt;
       border: 0px solid white;
@@ -62,6 +62,12 @@
    #clouds-toggle {
       top: 0px;
       left: 0px;
+      opacity: 0.5;
+   }
+
+   #difficulty-toggle {
+      top: 0px;
+      right: 0px;
       opacity: 0.5;
    }
 
@@ -154,7 +160,8 @@
 
    #cloud {
       display: none;
-   }
+   }   
+   
   </style>
 
   <script src="{{url_for('static', filename='js/vendor/modernizr-2.5.3.min.js')}}"></script>
@@ -177,6 +184,7 @@
   </h1>
 
   <input type="button" id="clouds-toggle" value="clouds" />
+  <input type="button" id="difficulty-toggle" value="hard" />  
   
   <input type="button" id="start-left" class="start" value="start" />
   <input type="button" id="start-right" class="start" value="start" />
