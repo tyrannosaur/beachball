@@ -565,21 +565,20 @@ var app = {};
       })
       .click();      
 
-      var difficulty = 2,
+      var difficulty = 1,
           difficulties = [
             'easy',
             'medium',
             'hard'
           ];
 
-      Game.difficulty(difficulties[difficulty]);
-
       $('#difficulty-toggle').on('click.game', function() {
          difficulty = (difficulty + 1) % difficulties.length;
          
          Game.difficulty(difficulties[difficulty]);
          $(this).attr('value', difficulties[difficulty]);
-      });
+      })
+      .click();
 
       game.load();      
    });
