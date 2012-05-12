@@ -29,13 +29,13 @@ var app = {};
       else if (bodyB.id == '#beachball') { body = bodyB; }
 
       if (body) {
-         $(Game).triggerHandler('game.wallHit', {body: body});
+         $(Game).triggerHandler({type: 'game.wallHit', body: body});
       }
    };
 
    // Callback for when a wall is hit.
    var onWallHit = function() {
-      onFloorHit.apply(this, arguments);
+      onFloorHit.apply(null, arguments);
    }
 
    var worldStep = function() {    
@@ -440,7 +440,7 @@ var app = {};
       
       $(game).on('game.reset game.unloaded', function(e) {        
          if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
-         counter.html(e.message || title);   
+         counter.html(e.reason || title);   
          c = 0;                  
          $('.start').fadeIn();         
       });
@@ -471,6 +471,7 @@ var app = {};
       
       $(game).on('game.wallHit', function(e) {
          if (started) {            
+            console.log(e.body);            
             started = false;
             var drawScale = game.drawScale(),
                 w = $(window);         
@@ -484,7 +485,7 @@ var app = {};
                         .show(100, function() {
                            $(this).fadeOut(800, function() {
                               var time = c.toFixed(2);
-                              $(game).triggerHandler({type : 'game.reset', message : time + '<h3>final time</h3>'});
+                              $(game).triggerHandler({type : 'game.reset', reason : time + '<h3>final time</h3>'});
                            });                           
                         });                      
          }
