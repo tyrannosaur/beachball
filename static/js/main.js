@@ -57,6 +57,7 @@ var app = {};
 
    // Smooth the gravity data from the device and change the gravity of the world.           
    var changeGravity = function() {
+      return;
       var sumx = 0,
           sumy = 0;
 
@@ -235,6 +236,33 @@ var app = {};
          gravityLastInterval = setInterval(changeGravity, gravityDelay);
       });                       
       
+      // Detect when device orientation changes and warn that the game will be
+      // restarted (unless, of course, the original orientation is restored)
+      
+      // TODO: tweak Box2D so that orientation changes are seamless and don't
+      //       require a restart            
+      if (window.orientation != undefined) {
+        originalOrientation = window.orientation;                    
+        
+        $(window).on('orientationchange.game', function() {        
+          if (window.orientation != originalOrientation) {
+            if (!Game.paused()) {
+                originalOrientation = window.orientation;
+                Game.reload();
+            }
+            else {
+               $(Game).triggerHandler({
+                 type : 'game.pause',
+                 reason : 'orientation changed and the game will reset!<br/><h3>rotate back to unpause</h3>'
+               });                       
+            }
+          }
+        });   
+        
+        $(Game).on('game.unpause.orientationchange', function() {
+            if (window.orientation != originalOrientation) { Game.reload(); }
+        });
+      }
 
       $(Game).triggerHandler('game.startPhysics') 
       $(Game).triggerHandler('game.loaded');              
