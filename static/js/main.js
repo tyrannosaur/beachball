@@ -38,7 +38,8 @@ var app = {};
       onFloorHit.apply(this, arguments);
    }
 
-   var worldStep = function() {     
+   var worldStep = function() {    
+     return; 
      world.world.Step(1/settings.targetFPS, settings.stepSize, settings.stepSize);
               
      $.each(world.bodies, function(i, body) {                     
@@ -57,7 +58,6 @@ var app = {};
 
    // Smooth the gravity data from the device and change the gravity of the world.           
    var changeGravity = function() {
-      return;
       var sumx = 0,
           sumy = 0;
 
@@ -278,7 +278,7 @@ var app = {};
       $(window).off('devicemotion.game orientationchange.game');
  
       if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }
-      $.when($(Game).triggerHandler({type : 'game.unloaded'}))
+      $.when($(Game).triggerHandler('game.unloaded'))
        .done(function() {          
           world = undefined;  
           if (typeof done === 'function') { done(); }
@@ -291,7 +291,7 @@ var app = {};
 
    // Callback for when the game is paused.
    $(Game).on('game.pause', function() { 
-      paused = true;
+      paused = true;      
       if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }      
    });
       
@@ -507,7 +507,7 @@ var app = {};
             if (!started) {               
                stated = true;
                $('.start').fadeOut();
-               $(game).triggerHandler({type: 'game.start'});
+               $(game).triggerHandler('game.start');
             }
          })
          .fadeIn();
@@ -515,11 +515,11 @@ var app = {};
          $('.pause-unpause').on('click.game', function() {
             if (started) {
                 $(this).fadeIn();
-                $(game).triggerHandler({type : 'game.pause'});
+                $(game).triggerHandler('game.pause');
             }
             else {
                 $(this).fadeOut();
-                $(game).triggerHandler({type : 'game.unpause'});
+                $(game).triggerHandler('game.unpause');
             }
          });
       });
