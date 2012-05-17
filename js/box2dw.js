@@ -138,14 +138,7 @@ var box2dw = {};
                            [[x0, y0], [x1, y1], ...]
                            [{x : x0, y : y0}, {x : x1, y : y1}, ...]
                            [x0, y0, x1, y1, ...]
-            
-            autoDimensions : automatically generate the body dimensions to match the sprite
-                             dimensions and initial rotation. If true, overrides radius, width and height.
-                             Polygons are not currently supported.
-                             Defaults to false.
-                     
-            sprite      : if a string, the url of the image to be loaded into a new sprite.
-                          Otherwise treated as an existing sprite.
+
    */   
       
    W.prototype.body = function(settings) {
@@ -174,8 +167,7 @@ var box2dw = {};
          'scale' : 1,
          
          'vertices' : undefined,
-         
-         'autoDimensions' : true,
+
          'id' : undefined,
       }, settings);
 
@@ -199,30 +191,6 @@ var box2dw = {};
          settings.scaleY = settings.scale;
       }
 
-      /*
-      if (settings.sprite) {
-         if (typeof settings.sprite === 'string')
-            settings.sprite = settings.sprite;
-
-         // Auto fit the dimensions?
-         if (settings.autoDimensions) {
-            if (settings.shape == 'polygon')
-               throw new TypeError('polygon shape cannot be autoDimensioned yet');
-         
-            with (settings.sprite.contentSize) {
-               settings.width = this.toMeters(width);
-               settings.height = this.toMeters(height);
-               settings.radius = this.toMeters(Math.max(width, height));
-               settings.rotation = settings.sprite.rotation;
-            }      
-         }
-         
-         settings.sprite.position = new geo.Point(this.toPixels(settings.x), this.toPixels(settings.y));
-         settings.sprite.scaleX = settings.scaleX;
-         settings.sprite.scaleY = settings.scaleY;
-      }
-      */
-      
       var fixDef = new FixtureDef;
       var bodyDef = new BodyDef;
 

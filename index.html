@@ -16,11 +16,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
  
-  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{url_for('static', filename='img/h/apple-touch-icon.png')}}">
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{url_for('static', filename='img/m/apple-touch-icon.png')}}">
-  <link rel="apple-touch-icon-precomposed" href="{{url_for('static', filename='img/l/apple-touch-icon-precomposed.png')}}">
-
-  <link rel="shortcut icon" href="{{url_for('static', filename='img/l/apple-touch-icon.png')}}">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/h/apple-touch-icon.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/m/apple-touch-icon.png">
+  <link rel="apple-touch-icon-precomposed" href="img/l/apple-touch-icon-precomposed.png">
+  <link rel="shortcut icon" href="img/l/apple-touch-icon.png">
 
   <link href='http://fonts.googleapis.com/css?family=Wellfleet' rel='stylesheet' type='text/css'>
   <style type="text/css">
@@ -156,7 +155,7 @@
    }
   </style>
 
-  <script src="{{url_for('static', filename='js/vendor/modernizr-2.5.3.min.js')}}"></script>
+  <script src="/js/modernizr-2.5.3.min.js"></script>
 </head>
 <body>
   <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
@@ -167,9 +166,9 @@
   <div id="danger-zone" class="safe zone"></div>
   <div id="safe-zone" class="danger zone"></div>
 
-  <img id="beachball" src="{{url_for('static', filename='img/beachball.png')}}" />
-  <img id="splash" src="{{url_for('static', filename='img/splash.png')}}" />
-  <img id="cloud" src="{{url_for('static', filename='img/cloud.png')}}" />
+  <img id="beachball" src="img/beachball.png" />
+  <img id="splash" src="img/splash.png" />
+  <img id="cloud" src="img/cloud.png" />
 
   <h1 id="header">
     <div id="counter">loading...</div>
@@ -183,12 +182,11 @@
   <input type="button" id="pause-unpause-left" style="display:none;" class="pause-unpause" value="" />
   <input type="button" id="pause-unpause-right" style="display:none;" class="pause-unpause" value="" />  
 
-  <script src="{{url_for('static', filename='js/vendor/jquery-1.7.2.min.js')}}"></script>
-  <script src="{{url_for('static', filename='js/box2d.js')}}"></script>
-  <script src="{{url_for('static', filename='js/box2dw.js')}}"></script>
-  <script src="{{url_for('static', filename='js/plugins.js')}}"></script>
-  <script src="{{url_for('static', filename='js/main.js')}}"></script>
-  <!-- end scripts -->
+  <script src="js/jquery-1.7.2.min.js"></script>
+  <script src="js/box2d.js"></script>
+  <script src="js/box2dw.js"></script>
+  <script src="js/plugins.js"></script>
+  <script src="js/main.js"></script>
 
 </body>
 </html>
