@@ -14,7 +14,7 @@ def minify():
    min_scripts = {}
 
    js_files = [os.path.abspath(name) for name in glob.glob(JS) if not name.endswith('min.js')]
-   html_files = [os.path.abspath(name) for name in glob.glob(HTML) if not name.endswith('min.js')]
+   html_files = [os.path.abspath(name) for name in glob.glob(HTML) if not name.endswith('min.html')]
    
    for name in js_files:     
       print('minifying {0}'.format(name))
@@ -33,7 +33,8 @@ def minify():
       
       name = min_name(name)
       with open(name, 'wb') as html:
-         [text.replace('/js/{0}'.format(name), '/js/{0}'.format(min_scripts[name])) for name in min_scripts]      
+         for name in min_scripts:            
+            text = text.replace(os.path.split(name)[1], os.path.split(min_scripts[name])[1])
          html.write(text)
          
 if __name__ == '__main__':
