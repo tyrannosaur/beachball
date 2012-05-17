@@ -21,6 +21,7 @@
   <link rel="apple-touch-icon-precomposed" href="img/l/apple-touch-icon-precomposed.png">
   <link rel="shortcut icon" href="img/l/apple-touch-icon.png">
 
+  <link href="{{url_for('static', filename='css/style.css')}}" rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Wellfleet' rel='stylesheet' type='text/css'>
   <style type="text/css">
 
@@ -29,7 +30,7 @@
       margin: 0px;
     }
 
-   .pause-unpause, .start, #clouds-toggle {
+   .pause-unpause, .start, #clouds-toggle, #difficulty-toggle {
       font-family: 'Wellfleet';
       font-size: 12pt;
       border: 0px solid white;
@@ -60,6 +61,12 @@
    #clouds-toggle {
       top: 0px;
       left: 0px;
+      opacity: 0.5;
+   }
+
+   #difficulty-toggle {
+      top: 0px;
+      right: 0px;
       opacity: 0.5;
    }
 
@@ -152,7 +159,8 @@
 
    #cloud {
       display: none;
-   }
+   }   
+   
   </style>
 
   <script src="/js/modernizr-2.5.3.min.js"></script>
@@ -175,6 +183,7 @@
   </h1>
 
   <input type="button" id="clouds-toggle" value="clouds" />
+  <input type="button" id="difficulty-toggle" value="hard" />  
   
   <input type="button" id="start-left" class="start" value="start" />
   <input type="button" id="start-right" class="start" value="start" />
