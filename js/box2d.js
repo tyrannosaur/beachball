@@ -1,3 +1,7 @@
+/* 
+* Credit: http://code.google.com/p/box2dweb/ 
+*/
+
 /*
 * Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
 *

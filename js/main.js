@@ -1,241 +1,323 @@
-var app = {};
+/* beachball
+   =========
+   
+   A simple physics game: keep the beachball balanced on the beach!
 
-/** The game itself **/
+   controls
+   ========
+   
+   move left   - 'A' key or tilting left (on a device with an accelerometer)
+   move right  - 'D' key or tilting right
+   start game  - 'S' key or clicking on the 'start' button. The 'S' key will
+                  function even if no accelerometer is detected.
+*/
+
+/* Push a body with an impulse */
+Box2D.impulse = function(body, angle, impulseMagnitude) {     
+   impulseMagnitude = (impulseMagnitude == undefined) ? 0.001 : impulseMagnitude;
+   body.ApplyImpulse({
+         x : -Math.cos(angle) * impulseMagnitude, 
+         y : Math.sin(angle) * impulseMagnitude
+   }, 
+   body.GetWorldCenter());
+}
+   
+var beachball = {};
+
+/* Game logic
+*/
 (function(app) {  
+   /* Wrap up an interval.
+   
+      step           :  the function to be called
+   
+      options:
+         delay       :  the delay (in seconds) to call the step function         
+         runningHook :  if a function, this will be called with a true value if
+                        the repeater is running and false if it is stopped
+   */
+   var repeater = app.repeater = function(settings, step) {      
+      if (!settings) { throw new Error(); }      
+      if (!settings.delay || settings.delay < 0) { throw new Error('delay must be >= 0'); }
+   
+      var lastInterval,
+          delay = settings.delay,          
+          runningHook = function(val) {
+            if (typeof settings.runningHook === 'function') { settings.runningHook(val); }
+          };
+   
+      return {
+         start : function() {
+            if (lastInterval == undefined) {               
+               lastInterval = setInterval(step, 1000*delay);
+               runningHook(true);
+            }
+         },
+         stop : function() {
+            if (lastInterval != undefined) {
+               clearInterval(lastInterval);
+               lastInterval = undefined;
+               runningHook(false);
+            }
+         },
+         step : step,
+         running : function() {
+            return lastInterval != undefined;
+         }
+      };
+   }
+
    var settings = {
-      impulseMagnitude : 0.0001,
-      targetFPS : 30,
-      stepSize : 4,
-      beachHeight: 50,
-      gravityScale : 1,
-      defaultGravity : {x : 0, y : 9.8}
+      impulseMagnitude : 0.0001,    // the impulse (in N*s) applied via impulse()
+      targetFPS : 30,               // the FPS desired for the physics engine
+      stepSize : 4,                 // iterative physics calculations performed by the physics 
+                                    // engine for every frame
+      defaultGravity : {            // the gravity used if an accelerometer is not present
+         x : 0, 
+         y : 9.8
+      },
+      difficulty : {                // the game difficulties and the corresponding gravity scales
+         'easy'   : 0.5,
+         'medium' : 1.0,
+         'hard'   : 1.25
+      }
    }
    
-   var world,
-       bodies,     
-       gx = [],
-       gy = [],
-       worldLastInterval,
-       started = false,
-       paused = false;
-
-   var beachballPosition;  // The initial position of the beachball
+   var beachballPosition,  // The initial position of the beachball, in pixels
+       beachballBody;      // The beachball's Box2D body  
+   
+   var world,                       // the friendly-Box2D world       
+       gx = [],                     // a history of device gravities (x component)
+       gy = [],                     // a history of device gravities (y component)       
+       started = false,             // if the game has been started and is running
+       paused = false,              // if the game has been paused
+       gameGravityScale = 1 ,       // the scaling factor of the gravity (scale*G)
+       gameDifficulty = 'hard';     // the current difficulty of the game                                  
        
-   var Game = function() {};
+   var game = {},          // The game object
+       $game = $(game);    // The jQuery game object, used for event binding
 
-   // Callback for when a floor is hit.
-   var onFloorHit = function(sensor, bodyA, bodyB) {
+   /* Callback for when a wall is hit.
+   */
+   var onWallHit = function(sensor, bodyA, bodyB) {
       var body;
       if (bodyA.id == '#beachball') { body = bodyA; }
       else if (bodyB.id == '#beachball') { body = bodyB; }
 
       if (body) {
-         $(Game).triggerHandler({type: 'game.wallHit', body: body});
+         $game.triggerHandler({type : 'game.wallHit', body: body});
       }
    };
 
-   // Callback for when a wall is hit.
-   var onWallHit = function() {
-      onFloorHit.apply(null, arguments);
-   }
+   /* Main loop for updating the physics engine and graphics
+   */
+   var mainRepeater = repeater({
+            delay : 1/settings.targetFPS            
+         }, function() {                              
+               world.step(1/settings.targetFPS, settings.stepSize, settings.stepSize);
+               world.iterBodies(function(i, body) {                  
+                  if (body.id != undefined) {                             
+                     var pos = body.GetPosition(),
+                         angle = body.GetAngle(),
+                         drawRatio = world.drawRatio(),
+                         obj = $(body.id);
 
-   var worldStep = function() {    
-     world.world.Step(1/settings.targetFPS, settings.stepSize, settings.stepSize);
-              
-     $.each(world.bodies, function(i, body) {                     
-         if (body.id != undefined) {                  
-            var pos = body.GetPosition(),
-                obj = $(body.id);
+                     obj.css('left', pos.x * drawRatio - obj.width()/2 + 'px');
+                     obj.css('top', pos.y * drawRatio - obj.height()/2 + 'px');                                           
+                     obj.rotate(angle, 'rad');
+                  }
+               });
+               world.clearForces();
+   });
 
-            obj.css('left', pos.x * world.drawScale - obj.width()/2 + 'px');
-            obj.css('top', pos.y * world.drawScale + 'px');                                           
-            obj.rotate(body.GetAngle(), 'rad');
-         }
-     });    
+   /* Smooth the gravity data from the device and change the gravity of the world. 
+   */
+   var gravityRepeater = repeater({
+            delay : 1/100         
+         }, function() {
+               var sumx = 0,
+                   sumy = 0;
 
-     world.world.ClearForces();                            
-   }
+               for (var i in gx) { sumx += gx[i]; }
+               for (var i in gy) { sumy += gy[i]; }
+               
+               sumx /= gx.length;
+               sumy /= gy.length;
 
-   // Smooth the gravity data from the device and change the gravity of the world.           
-   var changeGravity = function() {
-      var sumx = 0,
-          sumy = 0;
+               gx = [];
+               gy = [];
 
-      for (var i in gx) { sumx += gx[i]; }
-      for (var i in gy) { sumy += gy[i]; }
-      
-      sumx /= gx.length;
-      sumy /= gy.length;
+               sumx *= gameGravityScale;
+               sumy *= gameGravityScale;
 
-      gx = [];
-      gy = [];
-
-      sumx *= settings.gravityScale;
-      sumy *= settings.gravityScale;
-
-      if (!isNaN(sumx) && !isNaN(sumy)) {
-         world.gravity({
-            x : sumx,
-            y : -sumy
-         });
-      
-         var angle = Math.atan(sumy/(sumx + 0.00001));      
-            
-         bodies.beachball.ApplyImpulse({
-            x : -Math.cos(angle) * settings.impulseMagnitude, 
-            y : Math.sin(angle) * settings.impulseMagnitude
-         }, 
-         bodies.beachball.GetWorldCenter());
-      }
-   };   
+               if (!isNaN(sumx) && !isNaN(sumy)) {
+                  world.gravity({
+                     x : sumx,
+                     y : -sumy
+                  });
+               
+                  var angle = Math.atan(sumy/(sumx + 0.00001));      
+                     
+                  beachballBody.ApplyImpulse({
+                     x : -Math.cos(angle) * settings.impulseMagnitude, 
+                     y : Math.sin(angle) * settings.impulseMagnitude
+                  }, 
+                  beachballBody.GetWorldCenter());
+               }
+   });      
    
-   Game.difficulty = function() {
-      if (arguments[0]) {
-         var scale;
-         switch(arguments[0]) {
-            case 'easy':
-               scale = 0.5;
-               break;
-            case 'medium':
-               scale = 0.75;
-               break;
-            case 'hard':
-               scale = 1.0;
-               break;
-         }
-         settings.gravityScale = scale;
-         settings.difficulty = arguments[0];
+   /* Set or get the current difficulty of the game.
+   */
+   game.difficulty = function() {
+      if (arguments[0] && arguments[0] in settings.difficulty) {
+         gameDifficulty = arguments[0];   
+         gameGravityScale = settings.difficulty[arguments[0]];
       }
       else {
-         return settings.difficulty; 
+         return gameDifficulty;
       }
    }
    
    // The ratio between pixels and Box2D units (meters).
-   Game.drawScale = function() {
-      return world.drawScale;
+   game.drawRatio = function() {
+      return world.drawRatio();
    };
    
    // Has the game been started?
-   Game.started = function() {
+   game.started = function() {
       return started;
    };
 
    // Is the entire game paused or is it running?
-   Game.paused = function() {
+   game.paused = function() {
       return paused;
    };
 
-   // Call this when the DOM has been fully loaded and the game needs to
-   // be initialized.
-   Game.load = function() {
-      var w = $(window),
-          beachball = $('#beachball'),
-          safeZone = $('#safe-zone'),
-          dangerZone = $('#danger-zone');
+   /* Called when the DOM has been fully loaded and the game needs to
+      be initialized.
+   */
+   game.load = function() {
+      var $w = $(window),
+          $width = $w.width(),
+          $height = $w.height(),          
+          $beachball = $('#beachball'),
+          $safeZone = $('#safe-zone'),
+          $dangerZone = $('#danger-zone');
 
+      // Save the initial position of the beachball
       beachballPosition = {
-         x : w.width() / 2 + 'px',
+         x : $width/2 + 'px',
          y : '100px'
       }
 
       // Set up the Box2D components
-      world = box2dw.world({
-         drawScale : w.width(),
+      world = new Box2D.world({
+         drawRatio : $w.width(),
          gravity : settings.defaultGravity
       });      
 
-      // Reposition the sand
-      safeZone.css('left', w.width()/2 - safeZone.width()/2 + 'px')
-              .css('top', w.height() - settings.beachHeight + 'px');
-      dangerZone.css('left', w.width()/2 - dangerZone.width()/2 + 'px')
-                .css('top', w.height() - settings.beachHeight + 'px');
+      // Reposition the sand so that it's centered horizontally and
+      // centered and straddling the bottom of the screen verticially
+      $safeZone.css('left', $width/2 - $safeZone.width()/2 + 'px');               
+      $dangerZone.css('left', $width/2 - $dangerZone.width()/2 + 'px');      
 
-      beachball.css('left', w.width()/2 - beachball.width()/2 + 'px');
+      $beachball.css('left', beachballPosition.x)
+                .css('top', beachballPosition.y);
 
-      var beachRadius = dangerZone.cornerRadius(),
-          beachFlat = dangerZone.width() - beachRadius*2;
+      // bounding wall thickness
+      var wallThickness = 10;                                
 
-      // Set up the bodies.
-      // The beach bodies consist of two circles capping the danger zone
-      // with a rectangle over the safe zone between them
+      beachballBody = world.addBody({
+         shape : 'circle',
+         static : false,
+         radius : $beachball.width()/2 + 'px',
+         x : beachballPosition.x,
+         y : beachballPosition.y,
+         id : '#beachball'
+      });
 
-      var wallThickness = 10;
-
-      bodies = {
-         bottomWall : world.body({
+      // Bottom wall
+      world.addBody({
             static : true,         
-            sensorCallback : onFloorHit,
-            x : w.width()/2 + 'px',
-            y : w.height() + beachball.height() + wallThickness + 'px',
-            width : w.width() * 4 + 'px',
-            height : wallThickness + 'px'
-         }),
-         leftWall : world.body({
-            static : true,
             sensorCallback : onWallHit,
-            x : -w.width() + 'px',
-            y : w.height()/2 + 'px',
-            width : wallThickness + 'px',
-            height : w.height() * 4 + 'px'
-         }),
-         rightWall : world.body({
-            static : true,
-            sensorCallback : onWallHit,
-            x : w.width() * 2 + 'px',
-            y : w.height() / 2 + 'px',
-            width : wallThickness + 'px',
-            height : w.height() * 4 + 'px'
-         }),
-         topWall : world.body({
-            static : true,
-            sensorCallback: onWallHit,
-            x : w.width()/2 + 'px',
-            y : -beachball.height() * 2 + 'px',
-            width : w.width() * 4 + 'px',
+            x : $width/2 + 'px',
+            y : $height + $beachball.height()*2 + wallThickness + 'px',
+            width : $width * 4 + 'px',
             height : wallThickness + 'px'
-         }),
-         beachCenter : world.body({
-            shape : 'box',
-            x : w.width()/2 + 'px',
-            y : w.height() - settings.beachHeight + beachRadius + 'px',
-            width : beachFlat + 'px',
-            height : beachRadius * 2 + 'px'            
-         }),
-         beachCapRight : world.body({
-            shape : 'circle',
-            x : w.width()/2 + beachFlat/2 + 'px',
-            y : w.height() - settings.beachHeight + beachRadius + 'px',
-            radius : beachRadius + 'px'         
-         }),
-         beachCapLeft : world.body({
-            shape : 'circle',
-            x : w.width()/2 - beachFlat/2 + 'px',
-            y : w.height() - settings.beachHeight + beachRadius + 'px',
-            radius : beachRadius + 'px'        
-         }),
-         beachball : world.body({
-            shape : 'circle',
-            static : false,
-            radius : beachball.width() + 'px',
-            x : beachballPosition.x,
-            y : beachballPosition.y,
-            id : '#beachball'
-         })   
-      }
-     
-      var gravityLastInterval,
-          gravityDelay = 100,
-          originalOrientation;
+      });
       
+      // Left wall
+      world.addBody({
+         static : true,
+         sensorCallback : onWallHit,
+         x : -$width + 'px',
+         y : $height/2 + 'px',
+         width : wallThickness + 'px',
+         height : $height * 4 + 'px'
+      });
+      
+      // Right wall
+      world.addBody({
+         static : true,
+         sensorCallback : onWallHit,
+         x : $width*2 + 'px',
+         y : $height/2 + 'px',
+         width : wallThickness + 'px',
+         height : $height * 4 + 'px'
+      });
+      
+      // Top wall
+      world.addBody({
+         static : true,
+         sensorCallback: onWallHit,
+         x : $width/2 + 'px',
+         y : -$beachball.height() * 2 + 'px',
+         width : $width * 4 + 'px',
+         height : wallThickness + 'px'
+      });
+      
+      // The flat, center of the beach
+      world.addBody({
+         shape : 'box',
+         x : $width/2 + 'px',
+         y : $dangerZone.offset().top + $dangerZone.height() + 'px',
+         width : $dangerZone.width() - $dangerZone.cornerRadius()*2 + 'px',
+         height : $dangerZone.height() * 2 + 'px'            
+      });
+      
+      // The largest left corner of the beach
+      world.addBody({
+         shape : 'circle',
+         x : $dangerZone.offset().left + $dangerZone.cornerRadius() + 'px',
+         y : $dangerZone.offset().top + $dangerZone.height()/2 + 'px',
+         radius : $dangerZone.cornerRadius() + 'px'         
+      })
+      
+      // The largest right corner of the beach    
+      world.addBody({
+         shape : 'circle',
+         x : $dangerZone.offset().left + $dangerZone.width() - $dangerZone.cornerRadius() + 'px',
+         y : $dangerZone.offset().top + $dangerZone.height()/2 + 'px',
+         radius : $dangerZone.cornerRadius() + 'px'        
+      });
+     
+      // Check to see if gravity is supported
+      /*
       if (window.DeviceMotionEvent == undefined) {
-         return $(Game).triggerHandler({
-            type: 'game.notLoaded',
+         return $game.triggerHandler('game.notLoaded', {            
             reason : 'device gravity not supported in your browser'
          });    
-      }        
+      } 
+      */
+
+      // Bind additional callbacks
+
+      $game.on('game.unloaded game.pause', gravityRepeater.stop);         
+      $game.on('game.start game.unpause', gravityRepeater.start);
+      
+      var originalOrientation;        
    
-      $(window).on('devicemotion.game', function(e) {
+      $w.on('devicemotion.game', function(e) {
           e = e.originalEvent;
           switch(window.orientation) {        
             // Reverse x and y
@@ -253,120 +335,140 @@ var app = {};
               break;
          }
       });
-
-      $(Game).on('game.reset game.unloaded game.pause', function(e) {
-         if (gravityLastInterval != undefined) { clearInterval(gravityLastInterval); };
-      });
-
-      $(Game).on('game.start game.unpause', function(e) {
-         gravityLastInterval = setInterval(changeGravity, gravityDelay);
-      });                       
       
-      // Detect when device orientation changes and warn that the game will be
-      // restarted (unless, of course, the original orientation is restored)
+      /* Detect when device orientation changes and warn that the game will be
+         restarted (unless, of course, the original orientation is restored)
       
-      // TODO: tweak Box2D so that orientation changes are seamless and don't
-      //       require a restart            
+         TODO: tweak Box2D so that orientation changes are seamless and don't
+               require a restart            
+      */
       if (window.orientation != undefined) {
         originalOrientation = window.orientation;                    
         
         $(window).on('orientationchange.game', function() {        
           if (window.orientation != originalOrientation) {
-            if (!Game.paused()) {
+            if (!game.paused()) {
                 originalOrientation = window.orientation;
-                Game.reload();
+                game.reload();
             }
             else {
-               $(Game).triggerHandler({
-                 type : 'game.pause',
-                 reason : 'orientation changed and the game will reset!<br/><h3>rotate back to unpause</h3>'
+               $game.triggerHandler({
+                  type : 'game.pause',
+                  reason : 'orientation changed and the game will reset!<br/><h3>rotate back to unpause</h3>'
                });                       
             }
           }
         });   
         
-        $(Game).on('game.unpause.orientationchange', function() {
-            if (window.orientation != originalOrientation) { Game.reload(); }
+        $game.on('game.unpause.orientationchange', function() {
+            if (window.orientation != originalOrientation) { game.reload(); }
         });
       }
 
-      $(Game).triggerHandler('game.startPhysics') 
-      $(Game).triggerHandler('game.loaded');              
+      $game.on('game.pushLeft', function() {
+         var g = world.gravity(),	
+                 angle = Math.atan(-g.x/(g.y + 0.00001));
+         Box2D.impulse(beachballBody, 0); 
+      });
+
+      $game.on('game.pushRight', function() {
+         var g = world.gravity(),	
+                angle = Math.atan(g.x/(g.y + 0.00001));
+         Box2D.impulse(beachballBody, 360);
+      });
+
+      // Send an notification that the game is now loaded
+      $game.triggerHandler('game.startPhysics');
+      $game.triggerHandler('game.loaded');            
    };        
 
-   // Call this when the game should be unloaded.
-   // Emits 'game.unloaded' event when unloading is complete.
-   Game.unload = function(done) {      
+   /* Called when the game should be unloaded.
+      Emits 'game.unloaded' event when unloading is complete.
+   */
+   game.unload = function(done) {      
       started = false;
       paused = false;
       
-      $(Game).off('game.unpause.orientationchange');
-      $(window).off('devicemotion.game orientationchange.game');
- 
-      if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }
-      $.when($(Game).triggerHandler('game.unloaded'))
-       .done(function() {          
-          world = undefined;  
-          if (typeof done === 'function') { done(); }
-      });
+      mainRepeater.stop();
+      
+      $game.off('game.unpause.orientationchange game.pushRight game.pushLeft game.reset game.unloaded game.pause');
+      $(window).off('devicemotion.game orientationchange.game');      
+      $game.triggerHandler('game.unloaded');
    };
    
-   Game.reload = function() {      
-      Game.unload(Game.load);
+   game.reload = function() {     
+      started = false;
+      paused = false;
+      
+      mainRepeater.stop();
+      
+      $game.off('game.unpause.orientationchange game.pushRight game.pushLeft game.reset game.unloaded game.pause');
+      $(window).off('devicemotion.game orientationchange.game');            
+      $.when($game.triggerHandler('game.unloaded'))
+       .done(game.load);
    };
 
    // Callback for when the game is paused.
-   $(Game).on('game.pause', function() { 
+   $game.on('game.pause', function() { 
       paused = true;      
-      if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }      
+      mainRepeater.stop();      
+   });
+      
+   $game.on('game.startPhysics', function() {
+      mainRepeater.start();         
+      started = true;
+      paused = false;   
    });
       
    // Start the physics and game if it hasn't been started.
-   $(Game).on('game.unpause game.startPhysics game.start', function() {
-      if (!started) { 
-         worldLastInterval = setInterval(worldStep, 1000/settings.targetFPS);
+   $game.on('game.unpause game.start', function() {         
+      if (!started) {                   
+         beachballBody.SetAngularVelocity(0);
+         beachballBody.SetLinearVelocity({
+            x : 0,
+            y : 0
+         });
+         beachballBody.SetPositionAndAngle({
+            x : world.toMeters(beachballPosition.x),
+            y : world.toMeters(beachballPosition.y)
+         }, 0);           
+         Box2D.impulse(beachballBody, Math.random() * 360, 0.002);   
+         mainRepeater.start();         
          started = true;
          paused = false;
       }
    });
-      
+   
    // Reset the game.
-   $(Game).on('game.reset', function(msg) {
+   $game.on('game.reset', function() {      
       started = false;
-      paused = false;
-      if (worldLastInterval != undefined) { clearInterval(worldLastInterval); }      
-      bodies.beachball.SetAngularVelocity(0);
-      bodies.beachball.SetLinearVelocity({
-         x : 0,
-         y : 0
-      });
-      bodies.beachball.SetPositionAndAngle({
-         x : world.toMeters(beachballPosition.x),
-         y : world.toMeters(beachballPosition.y)
-      }, 0);      
+      paused = false;      
+      mainRepeater.stop();
    });
 
-   app.game = Game;
+   app.game = game;
    app.settings = settings;   
     
-})(app);
+})(beachball);
 
-/** Clouds **/
+/* Clouds 
+*/
 (function(app) {
    var settings = {
       numClouds : 4,
       targetFPS : 30,
-      scaleMin : 0.5,
+      scaleMin : 0.2,
       scaleMax : 1.5,
       parallaxMin : 1,
       parallaxScale : 10,
       parallaxPower : 2,
+      planeFlybyChance: 0.4,
       cloudNode : $('#cloud'),
-      containerNode : $('#sea')      
+      planeNode : $('#plane'),
+      containerNode : $('#sea')    
    }
-  
-   var lastInterval = undefined, 
-       w = $(window),
+    
+   var w = $(window),
        clouds = [];
 
    // A function to turn pixel measurement strings into numbers
@@ -376,61 +478,89 @@ var app = {};
          return parseFloat(x.replace(/px/i, ''));          
    };
 
-   var step = function() {
-      $.each(clouds, function(key, cloud) {       
+   var cloudsRepeater = app.repeater({
+      delay : 1/settings.targetFPS
+   }, function() {   
+      $.each(clouds, function(key, cloud) {    
          var $cloud = cloud.image,
              $width = $cloud.width(),
              $height = $cloud.height(),
              $left = parsePx($cloud.css('left'));
 
          if ($left <= 0) {
-            $cloud.fadeOut('short', function() {
+            $cloud.fadeOut('short', function() {               
                $cloud.css('left', parseInt(w.width()) + 'px');
-               $cloud.css('top', parseInt(Math.random() * (w.height - $height)) + 'px');   
-               $cloud.fadeIn('short');
+               $cloud.css('top', parseInt(Math.random() * (w.height() - $height)) + 'px');   
+               
+               // If it's actually the plane, only display it planeFlybyChance% of the time
+               if (cloud.plane) {
+                  if (Math.random() <= settings.planeFlybyChance) { $cloud.fadeIn('short'); }
+                  else { $cloud.hide(); }
+               }
+               else {
+                  $cloud.fadeIn('short');
+               }
             });
          }
          else {
             $cloud.css('left', parseInt($left - cloud.dx) + 'px');
          }
       });
-   }
+   });
 
    var Clouds = function() {
    };
 
    var cloudsInit = function() {
-        for (var i=0; i<settings.numClouds; i++) {
-           var c = {},
-               scale = (settings.scaleMin + (Math.random() * settings.scaleMax));
+     for (var i=0; i<settings.numClouds+1; i++) {
+        var c = {},
+            scale = (settings.scaleMin + (Math.random() * settings.scaleMax));
 
-           c.image = settings.cloudNode.clone();
-           c.image.attr('id', null);
-           c.image.css('position', 'fixed');
-            
-           c.image.css('width', settings.cloudNode[0].width * scale + 'px');
-           c.image.css('height', settings.cloudNode[0].height * scale + 'px');
-           
-           // Parallax effect
-           c.dx = Math.pow((settings.parallaxMin + ((scale - settings.scaleMin)/settings.scaleMax) * settings.parallaxScale), settings.parallaxPower) / settings.targetFPS;
-
-           c.image.css('left', parseInt(Math.random() * (w.width() - c.image.width())) + 'px');
-           c.image.css('top', parseInt(Math.random() * (w.height() - c.image.height())) + 'px');            
-         
-           settings.containerNode.append(c.image);
-           clouds.push(c);
+        // If we're adding the plane
+        if (i == 0) {
+            node = settings.planeNode.clone();
+            c.plane = true;
+        }
+        else {
+            node = settings.cloudNode.clone();
         }
 
-        lastInterval = setInterval(step, 1000 /  settings.targetFPS);  
+        c.image = node;
+        c.image.attr('id', null);
+        c.image.addClass('cloud');
+       
+        settings.containerNode.append(c.image);
+        
+        var width = node[0].width;
+            height = node[0].height;
+        
+        c.image.css('width', parseInt(width * scale) + 'px');
+        c.image.css('height', parseInt(height * scale) + 'px');
+        
+        // Parallax effect
+        c.dx = Math.pow((settings.parallaxMin + ((scale - settings.scaleMin)/settings.scaleMax) * settings.parallaxScale), settings.parallaxPower) / settings.targetFPS;
+
+        c.image.css('left', parseInt(Math.random() * (w.width() - c.image.width())) + 'px');
+        c.image.css('top', parseInt(Math.random() * (w.height() - c.image.height())) + 'px');
+
+        // If we're adding the plane
+        if (i == 0) {
+            c.image.hide();
+        }        
+
+        clouds.push(c);
+     }
+     
+     cloudsRepeater.start();
    }
 
-   Clouds.load = function() {      
+   Clouds.load = function() {         
       if (!settings.cloudNode[0].complete) { settings.cloudNode.on('load', cloudsInit); }
       else { cloudsInit(); }         
    }
 
    Clouds.unload = function() {
-      if (lastInterval != undefined) { clearInterval(lastInterval); }
+      cloudsRepeater.stop();      
       settings.containerNode.children().remove();
       clouds = [];
       settings.cloudNode.off('load.game');
@@ -438,79 +568,90 @@ var app = {};
 
    app.clouds = Clouds;
 
-})(app);
+})(beachball);
 
-/** UI **/
+/* UI and controls
+*/
 (function(app) {
    $(document).ready(function() {
-      var title = 'beachball madness!';
+      var title = 'KiSS 92.5 beachball madness!';
 
       var game = app.game,      
-          counterLastInterval,
+          $game = $(game),          
           c = 0,
-          delay = 50,   
-          started = false,                
+          delay = 50,              
           counter = $('#counter');
-                
-      var step = function() {
-        counter.text(c.toFixed(2));
-        c += 1/delay;
-      }      
       
-      $(game).on('game.reset game.unloaded', function(e) {        
-         if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };
+      var _started = false,
+          started = function(val) {            
+            if (val != undefined) { _started = val; }
+            else { return _started; }
+      };
+
+      var counterRepeater = app.repeater({
+         delay : 1/delay,
+         runningHook : started
+      }, function() {                
+            counter.text(c.toFixed(2));
+            c += 1/delay;
+      });
+      
+      $game.on('game.reset game.unloaded', function(e) {        
+         counterRepeater.stop();
          counter.html(e.reason || title);   
          c = 0;                  
          $('.start').fadeIn();         
       });
 
-      $(game).on('game.start game.unpause', function() {   
-        if (!started) {
-          counterLastInterval = setInterval(step, delay);
-          step();
-          $('.pause-unpause').fadeOut();            
-          started = true;
-        }
+      $game.on('game.start game.unpause', function() {         
+         if (!started()) {         
+            counterRepeater.start();
+            counterRepeater.step();
+            $('.pause-unpause').fadeOut();                      
+         }
       });   
 
-      $(game).on('game.pause', function(e) {
-         if (started) {
-            if (counterLastInterval != undefined) { clearInterval(counterLastInterval); };            
+      $game.on('game.pause', function(e) {
+         if (started()) {
+            counterRepeater.stop();   
             $('.pause-unpause').attr('value', 'unpause')
                                .fadeIn();
-            if (e.reason) { $('#counter').html(e.reason); }
-            started = false;
+            if (e.reason) { $('#counter').html(e.reason); }            
          }
       });
    
-      $(game).on('game.notLoaded', function(e) {
+      $game.on('game.notLoaded', function(e) {
          $('#counter').html(e.reason);         
          $('.start').fadeOut();      
       });
-      
-      $(game).on('game.wallHit', function(e) {
-         if (started) {            
-            started = false;
-            var drawScale = game.drawScale(),
-                w = $(window);         
+            
+      $game.on('game.wallHit', function(e) {
+         if (started()) {            
+            started(false);
+            var drawRatio = game.drawRatio(),
+                $w = $(window),
+                $width = $w.width(),
+                position = e.body.GetPosition();
          
-            var splashX = ((e.body.GetPosition().x * drawScale) < w.width()/2)
+            var splashX = ((position.x * drawRatio) < $width/2)
                       ? 0
-                      : w.width() - $('#splash').width();
+                      : $width - $('#splash').width();
+                   
+            $game.triggerHandler({
+               type : 'game.reset', 
+               reason : c.toFixed(2) + '<h3>final time</h3>'
+            });                   
                    
             $('#splash').css('bottom', '0px')
                         .css('left', splashX + 'px')
-                        .show(100, function() {
-                           $(this).fadeOut(800, function() {
-                              var time = c.toFixed(2);
-                              $(game).triggerHandler({type : 'game.reset', reason : time + '<h3>final time</h3>'});
-                           });                           
+                        .show(100, function() {                       
+                           $(this).fadeOut(800);                                    
                         });                      
          }
       });
 
-      $(game).on('game.unloaded', function() {
-         started = false;
+      $game.on('game.unloaded', function() {
+         started(false);
          $('#counter').html(title);
          $('.start').off('click.game')
                     .fadeOut(); 
@@ -518,61 +659,55 @@ var app = {};
                     .fadeOut();                    
       });
          
-      $(game).on('game.loaded', function() {
-         started = false;
+      $game.on('game.loaded', function() {
+         started(false);
          $('#counter').html(title);
          
          $('.start').on('click.game', function() {
-            if (!started) {               
-               stated = true;
+            if (!started()) {                              
                $('.start').fadeOut();
-               $(game).triggerHandler('game.start');
+               $game.triggerHandler('game.start');
             }
          })
          .fadeIn();
          
          $('.pause-unpause').on('click.game', function() {
-            if (started) {
-                $(this).fadeIn();
-                $(game).triggerHandler('game.pause');
+            if (started()) {               
+               $(this).fadeIn();
+               $game.triggerHandler('game.pause');
             }
-            else {
-                $(this).fadeOut();
-                $(game).triggerHandler('game.unpause');
+            else {               
+               $(this).fadeOut();
+               $game.triggerHandler('game.unpause');
             }
          });         
       });
 
-      var toggled = false;
+      $(window).on('keydown', function(e) {
+         switch(String.fromCharCode(e.keyCode)) {
+            case 'a':
+            case 'A':
+               if (started()) {
+                  $game.triggerHandler('game.pushLeft');                  
+               }
+               break;
+            case 'd':
+            case 'D':
+               if (started()) {
+                  $game.triggerHandler('game.pushRight');                  
+               }
+               break;
+            case 's':
+            case 'S':               
+               if (!started()) {       
+                  $('.start').fadeOut();          
+                  $game.triggerHandler('game.start');
+               }
+            break;
+         }
+      });
 
-      $('#clouds-toggle').on('click.game', function() {                     
-          if (toggled) {
-             $(this).attr('value', 'clouds');
-             app.clouds.unload();            
-          }
-          else {          
-             $(this).attr('value', 'no clouds');
-             app.clouds.load();             
-          }
-          toggled = !toggled;
-      })
-      .click();      
-
-      var difficulty = 1,
-          difficulties = [
-            'easy',
-            'medium',
-            'hard'
-          ];
-
-      $('#difficulty-toggle').on('click.game', function() {
-         difficulty = (difficulty + 1) % difficulties.length;
-         
-         game.difficulty(difficulties[difficulty]);
-         $(this).attr('value', difficulties[difficulty]);
-      })
-      .click();
-
+      app.clouds.load();
       game.load();      
    });
-})(app);
+})(beachball);

@@ -6,10 +6,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title>beachball madness!</title>
+  <title>KiSS 92.5 beachball madness!</title>
   <meta name="description" content="beachball madness!">
   <meta name="HandheldFriendly" content="True">
   <meta name="MobileOptimized" content="320">
@@ -33,18 +34,18 @@
 
    .pause-unpause, .start, #clouds-toggle, #difficulty-toggle {
       font-family: 'Wellfleet';
-      font-size: 12pt;
+      font-size: 28pt;
       border: 0px solid white;
       color: rgb(22,217,235);
       background-color: #006699;
-      padding: 10px;
+      padding: 20px;
       display: block-inline;
       position: fixed;
-      z-index: 7;
+      z-index: 110;
    }
 
    #start-left, #pause-unpause-left {
-      bottom: 30px;
+      bottom: 80%;
       left: 0px;
       -webkit-border-radius: 0 5px 5px 0;   
       -moz-border-radius: 0 5px 5px 0;   
@@ -52,28 +53,16 @@
    }
 
    #start-right, #pause-unpause-right {
-      bottom: 30px;
+      bottom: 80%;
       right: 0px;
       -webkit-border-radius: 5px 0 0 5px;
       -moz-border-radius: 5px 0 0 5px;
       border-radius: 5px 0 0 5px;
    }
 
-   #clouds-toggle {
-      top: 0px;
-      left: 0px;
-      opacity: 0.5;
-   }
-
-   #difficulty-toggle {
-      top: 0px;
-      right: 0px;
-      opacity: 0.5;
-   }
-
    #header {
       font-family: 'Wellfleet';
-      font-size:18pt;
+      font-size:28pt;
       color: white;  
       position: fixed;
       width:100%;
@@ -86,15 +75,16 @@
       padding: 0px;
       margin: 0px;
       font-size: 0.8em;
+	  z-index: 50;
    }
 
    #beachball {
       position : fixed;
       left: 100px;
       top: 100px;
-      z-index: 5;
-      width: 50px;
-      height: 50px;
+      z-index: 100;
+      width: 225px;
+      height: 225px;
    }
    
    #splash {
@@ -102,35 +92,35 @@
       display: none;
       width: 147px;
       height: 50px;
-      z-index:7;
+      z-index:101;
    }
 
    .zone {
       position: fixed;
    }
 
-   .safe {
-      bottom: 0px;
-      left: -50%;   
-      width: 200px;
-      height: 200px;      
-      -webkit-border-radius: 50px;
-      -moz-border-radius: 50px;
-      border-radius: 50px;
+   .safe {      
+      bottom: -250px;
+      left: 0px;
+      width: 70%;
+      height: 400px;      
+      -webkit-border-radius: 150px;
+      -moz-border-radius: 150px;
+      border-radius: 150px;
       background-color: #bd8633; 
-      z-index: 4;
+      z-index: 70;
    }
 
    .danger {
-      bottom: 0px;
-      left: -50%;    
-      width: 300px;
-      height: 200px;      
-      -webkit-border-radius: 100px;
-      -moz-border-radius: 100px;
-      border-radius: 100px;
+      bottom: -250px;
+      left: 0px;
+      width: 80%;
+      height: 400px;      
+      -webkit-border-radius: 200px;
+      -moz-border-radius: 200px;
+      border-radius: 200px;
       background-color: #82521f;
-      z-index: 3;
+      z-index: 60;
    }
    
    #sea {
@@ -158,13 +148,31 @@
       height: auto;     
    }
 
+   #kiss-logo {
+	   background-image: url('img/kiss_logo.png');
+	   background-position: center 80px;
+	   width: 100%;
+	   height: 100%;
+	   z-index: 30;
+	   background-repeat: no-repeat;
+	   position: fixed;
+   }
+
    #cloud {
       display: none;
    }   
    
+   #plane {
+      display: none;
+   }
+   
+   .cloud {
+	   position: fixed;
+	   z-index: 40;
+   }   
   </style>
 
-  <script src="/js/modernizr-2.5.3.min.js"></script>
+  <script src="js/modernizr-2.5.3.min.js"></script>
 </head>
 <body>
   <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
@@ -172,20 +180,20 @@
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
 
   <div id="sea" class="zone"></div>
-  <div id="danger-zone" class="safe zone"></div>
-  <div id="safe-zone" class="danger zone"></div>
+  <div id="danger-zone" class="danger zone"></div>
+  <div id="safe-zone" class="safe zone"></div>
 
   <img id="beachball" src="img/beachball.png" />
   <img id="splash" src="img/splash.png" />
   <img id="cloud" src="img/cloud.png" />
+  <img id="plane" src="img/plane.png" />
+
+  <div id="kiss-logo"></div>
 
   <h1 id="header">
-    <div id="counter">loading...</div>
+    <div id="counter">loading...</div>    
   </h1>
 
-  <input type="button" id="clouds-toggle" value="clouds" />
-  <input type="button" id="difficulty-toggle" value="hard" />  
-  
   <input type="button" id="start-left" class="start" value="start" />
   <input type="button" id="start-right" class="start" value="start" />
   
@@ -194,9 +202,8 @@
 
   <script src="js/jquery-1.7.2.min.js"></script>
   <script src="js/box2d.min.js"></script>
-  <script src="js/box2dw.min.js"></script>
+  <script src="js/friendly-box2d.min.js"></script>
   <script src="js/plugins.min.js"></script>
   <script src="js/main.min.js"></script>
-
 </body>
 </html>
