@@ -149,10 +149,7 @@ var beachball = {};
                
                sumx *= gameGravityScale;
                sumy *= gameGravityScale;
-               
-               sumx = 0;
-               sumy = 9.8;
-
+  
                if (!isNaN(sumx) && !isNaN(sumy)) {
                   world.gravity({
                      x : sumx,
