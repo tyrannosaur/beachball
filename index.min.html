@@ -1,0 +1,209 @@
+<!doctype html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>KiSS 92.5 beachball madness!</title>
+  <meta name="description" content="beachball madness!">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+ 
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/h/apple-touch-icon.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/m/apple-touch-icon.png">
+  <link rel="apple-touch-icon-precomposed" href="img/l/apple-touch-icon-precomposed.png">
+  <link rel="shortcut icon" href="img/l/apple-touch-icon.png">
+
+  <link href='http://fonts.googleapis.com/css?family=Wellfleet' rel='stylesheet' type='text/css'>
+  <style type="text/css">
+
+    button, input[type="button"], input[type="reset"], input[type="submit"] { cursor: pointer; -webkit-appearance: button; *overflow: visible; }
+
+    body {
+      padding: 0px;
+      margin: 0px;
+    }
+
+   .pause-unpause, .start, #clouds-toggle, #difficulty-toggle {
+      font-family: 'Wellfleet';
+      font-size: 28pt;
+      border: 0px solid white;
+      color: rgb(22,217,235);
+      background-color: #006699;
+      padding: 20px;
+      display: block-inline;
+      position: fixed;
+      z-index: 110;
+   }
+
+   #start-left, #pause-unpause-left {
+      bottom: 80%;
+      left: 0px;
+      -webkit-border-radius: 0 5px 5px 0;   
+      -moz-border-radius: 0 5px 5px 0;   
+      border-radius: 0 5px 5px 0;   
+   }
+
+   #start-right, #pause-unpause-right {
+      bottom: 80%;
+      right: 0px;
+      -webkit-border-radius: 5px 0 0 5px;
+      -moz-border-radius: 5px 0 0 5px;
+      border-radius: 5px 0 0 5px;
+   }
+
+   #header {
+      font-family: 'Wellfleet';
+      font-size:28pt;
+      color: white;  
+      position: fixed;
+      width:100%;
+      text-align:center;
+      padding: 0px;
+      margin:0px;
+   }
+   
+   #counter h3 {
+      padding: 0px;
+      margin: 0px;
+      font-size: 0.8em;
+	  z-index: 50;
+   }
+
+   #beachball {
+      position : fixed;
+      left: 100px;
+      top: 100px;
+      z-index: 100;
+      width: 225px;
+      height: 225px;
+   }
+   
+   #splash {
+      position : fixed;
+      display: none;
+      width: 147px;
+      height: 50px;
+      z-index:101;
+   }
+
+   .zone {
+      position: fixed;
+   }
+
+   .safe {      
+      bottom: -250px;
+      left: 0px;
+      width: 70%;
+      height: 400px;      
+      -webkit-border-radius: 150px;
+      -moz-border-radius: 150px;
+      border-radius: 150px;
+      background-color: #bd8633; 
+      z-index: 70;
+   }
+
+   .danger {
+      bottom: -250px;
+      left: 0px;
+      width: 80%;
+      height: 400px;      
+      -webkit-border-radius: 200px;
+      -moz-border-radius: 200px;
+      border-radius: 200px;
+      background-color: #82521f;
+      z-index: 60;
+   }
+   
+   #sea {
+      width: 100%;
+      height: 100%;
+      background-image: linear-gradient(bottom, rgb(22,217,235) 44%, rgb(20,169,250) 72%);      
+      background-image: -moz-linear-gradient(bottom, rgb(22,217,235) 44%, rgb(20,169,250) 72%);      
+      background-image: -webkit-linear-gradient(bottom, rgb(22,217,235) 44%, rgb(20,169,250) 72%);      
+      background-image: -webkit-gradient(
+         linear,
+         left bottom,
+         left top,
+         color-stop(0.44, rgb(22,217,235)),
+         color-stop(0.72, rgb(20,169,250))
+      );
+   }
+   
+   #info {
+      font-family: monospace;
+      position: fixed;
+      color: white;
+      opacity: 0.8;
+      background-color: #909090;
+      width: auto;
+      height: auto;     
+   }
+
+   #kiss-logo {
+	   background-image: url('img/kiss_logo.png');
+	   background-position: center 80px;
+	   width: 100%;
+	   height: 100%;
+	   z-index: 30;
+	   background-repeat: no-repeat;
+	   position: fixed;
+   }
+
+   #cloud {
+      display: none;
+   }   
+   
+   #plane {
+      display: none;
+   }
+   
+   .cloud {
+	   position: fixed;
+	   z-index: 40;
+   }   
+  </style>
+
+  <script src="js/modernizr-2.5.3.min.js"></script>
+</head>
+<body>
+  <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
+       chromium.org/developers/how-tos/chrome-frame-getting-started -->
+  <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
+
+  <div id="sea" class="zone"></div>
+  <div id="danger-zone" class="danger zone"></div>
+  <div id="safe-zone" class="safe zone"></div>
+
+  <img id="beachball" src="img/beachball.png" />
+  <img id="splash" src="img/splash.png" />
+  <img id="cloud" src="img/cloud.png" />
+  <img id="plane" src="img/plane.png" />
+
+  <div id="kiss-logo"></div>
+
+  <h1 id="header">
+    <div id="counter">loading...</div>    
+  </h1>
+
+  <input type="button" id="start-left" class="start" value="start" />
+  <input type="button" id="start-right" class="start" value="start" />
+  
+  <input type="button" id="pause-unpause-left" style="display:none;" class="pause-unpause" value="" />
+  <input type="button" id="pause-unpause-right" style="display:none;" class="pause-unpause" value="" />  
+
+  <script src="js/jquery-1.7.2.min.js"></script>
+  <script src="js/box2d.min.js"></script>
+  <script src="js/friendly-box2d.min.js"></script>
+  <script src="js/plugins.min.js"></script>
+  <script src="js/main.min.js"></script>
+</body>
+</html>
