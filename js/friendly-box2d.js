@@ -256,7 +256,7 @@
          return current;
       }
       else {
-         this.world.SetGravity(new Vec2(
+         this.world().SetGravity(new Vec2(
             gravity.x == undefined ? current.x : gravity.x,
             gravity.y == undefined ? current.y : gravity.y));
       }

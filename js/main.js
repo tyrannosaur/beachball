@@ -146,9 +146,12 @@ var beachball = {};
 
                gx = [];
                gy = [];
-
+               
                sumx *= gameGravityScale;
                sumy *= gameGravityScale;
+               
+               sumx = 0;
+               sumy = 9.8;
 
                if (!isNaN(sumx) && !isNaN(sumy)) {
                   world.gravity({
@@ -312,7 +315,7 @@ var beachball = {};
 
       // Bind additional callbacks
 
-      $game.on('game.unloaded game.pause', gravityRepeater.stop);         
+      $game.on('game.reset game.unloaded game.pause', gravityRepeater.stop);         
       $game.on('game.start game.unpause', gravityRepeater.start);
       
       var originalOrientation;        
