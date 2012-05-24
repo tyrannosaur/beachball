@@ -563,7 +563,7 @@ var beachball = {};
 */
 (function(app) {
    $(document).ready(function() {
-      var title = 'KiSS 92.5 beachball madness!';
+      var title = 'beachball madness!';
 
       var game = app.game,      
           $game = $(game),          
