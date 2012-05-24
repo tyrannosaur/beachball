@@ -88,11 +88,11 @@
    }
    
    #splash {
-      position : fixed;
+      position : fixed;      
       display: none;
-      width: 147px;
-      height: 50px;
-      z-index:101;
+      width: 271px;
+      height: 92px;
+      z-index: 75;
    }
 
    .zone {
@@ -107,7 +107,13 @@
       -webkit-border-radius: 150px;
       -moz-border-radius: 150px;
       border-radius: 150px;
-      background-color: #bd8633; 
+      background: #ead175;
+      background: -moz-linear-gradient(top, #ead175 0%, #bd8633 50%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ead175), color-stop(50%,#bd8633));
+      background: -webkit-linear-gradient(top, #ead175 0%,#bd8633 50%);
+      background: -o-linear-gradient(top, #ead175 0%,#bd8633 50%);
+      background: -ms-linear-gradient(top, #ead175 0%,#bd8633 50%);
+      background: linear-gradient(top, #ead175 0%,#bd8633 50%);
       z-index: 70;
    }
 
@@ -119,7 +125,13 @@
       -webkit-border-radius: 200px;
       -moz-border-radius: 200px;
       border-radius: 200px;
-      background-color: #82521f;
+      background: #bd8633;
+      background: -moz-linear-gradient(top, #bd8633 0%, #82521f 50%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#bd8633), color-stop(50%,#82521f));
+      background: -webkit-linear-gradient(top, #bd8633 0%,#82521f 50%);
+      background: -o-linear-gradient(top, #bd8633 0%,#82521f 50%);
+      background: -ms-linear-gradient(top, #bd8633 0%,#82521f 50%);
+      background: linear-gradient(top, #bd8633 0%,#82521f 50%);
       z-index: 60;
    }
    
@@ -157,6 +169,40 @@
 	   background-repeat: no-repeat;
 	   position: fixed;
    }
+   
+   @-webkit-keyframes water-bob {
+       0% {
+         bottom: 0px;
+       }
+       50% {
+         bottom: -18px;
+       }
+       100% {
+         bottom: 0px;
+       }
+   }   
+   
+   #water-fg {
+	   background-image: url('img/water1.png');	   
+	   width: 100%;
+	   height: 36px;	   
+	   background-repeat: repeat-x;
+      z-index: 80;
+      bottom: 0px;
+      left: 0px;
+      -webkit-animation: water-bob 4s ease-in-out infinite;
+   }
+   
+   #water-bg {
+	   background-image: url('img/water2.png');	   
+	   width: 100%;
+	   height: 72px;	   
+	   background-repeat: repeat-x;
+      z-index: 50;
+      bottom: 0px;
+      left: 0px;
+      -webkit-animation: water-bob 8s ease-in-out infinite;
+   }
 
    #cloud {
       display: none;
@@ -170,9 +216,7 @@
 	   position: fixed;
 	   z-index: 40;
    }   
-  </style>
-
-  <script src="js/modernizr-2.5.3.min.js"></script>
+  </style>  
 </head>
 <body>
   <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
@@ -182,6 +226,9 @@
   <div id="sea" class="zone"></div>
   <div id="danger-zone" class="danger zone"></div>
   <div id="safe-zone" class="safe zone"></div>
+
+  <div id="water-fg" class="zone"></div>
+  <div id="water-bg" class="zone"></div>
 
   <img id="beachball" src="img/beachball.png" />
   <img id="splash" src="img/splash.png" />
