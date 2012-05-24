@@ -170,6 +170,18 @@
 	   position: fixed;
    }
    
+   @-moz-keyframes water-bob {
+       0% {
+         bottom: 0px;
+       }
+       50% {
+         bottom: -18px;
+       }
+       100% {
+         bottom: 0px;
+       }
+   }      
+   
    @-webkit-keyframes water-bob {
        0% {
          bottom: 0px;
@@ -191,6 +203,7 @@
       bottom: 0px;
       left: 0px;
       -webkit-animation: water-bob 4s ease-in-out infinite;
+      -moz-animation: water-bob 4s ease-in-out infinite;
    }
    
    #water-bg {
@@ -202,6 +215,7 @@
       bottom: 0px;
       left: 0px;
       -webkit-animation: water-bob 8s ease-in-out infinite;
+      -moz-animation: water-bob 4s ease-in-out infinite;
    }
 
    #cloud {
