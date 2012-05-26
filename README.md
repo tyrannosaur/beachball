@@ -1,8 +1,8 @@
 # beachball
 
-https://tyrannosaur.github.com/beachball
-
 A simple HTML5 game. Keep the beachball balanced on the beach!
+
+[Try it out yourself](http://tyrannosaur.github.com/beachball)
 
 ## Installation
 
