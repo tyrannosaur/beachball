@@ -33,6 +33,7 @@
   var $controls,
       $message,
       $counter,
+      $beachball,
       $w;
 
   var game = exports.game; 
@@ -56,6 +57,8 @@
 
   function start() {
     if (!game.started() && controlsEnabled()) {      
+      $beachball.fadeIn()
+                .css('visibility', 'visible');
       game.start();
       counter.start();
       controlsEnabled(false);
@@ -71,8 +74,9 @@
     $controls = $('#thumb-button-left, #thumb-button-right');
     $message = $('#message');
     $counter = $('#counter');
+    $beachball = $('#beachball');
     $w = $(window);
-  
+      
     msg('beachball madness!', 'Tilt your device left and right or use the ← and → keys to move the ball.');
   
     $controls.on('click touchup', start)
@@ -101,10 +105,6 @@
     controlsEnabled(false);
   });
   
-  game.events.on('started', function() {
-    controlsEnabled(false);
-  });
-  
   game.events.on('lost', function(e) {
     if (game.started()) {
       game.stop();
@@ -124,7 +124,8 @@
       $('#splash').css('bottom', '0px')
                   .css('left', splashX + 'px')
                   .show(100, function() {                                         
-                     $(this).fadeOut(800);   
+                     $(this).fadeOut(800); 
+                     $beachball.fadeOut();                       
                      game.resetBeachball();
                      controlsEnabled(true);            
                   });                      
