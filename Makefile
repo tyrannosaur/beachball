@@ -14,7 +14,8 @@ BUILD = build
 all: copy-site $(CSS) $(MIN_JS)
 
 clean:
-	rm -rf $(wildcard $(BUILD)/*)
+	@echo '==> Removing everything under $(BUILD)'
+	@rm -rf $(wildcard $(BUILD)/*)
 
 copy-site:
 	@echo '==> Copying site files'
