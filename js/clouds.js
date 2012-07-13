@@ -16,12 +16,9 @@
     }
   }
 
-  function Sprite($obj, dx, zIndex, fixedZLevel) {
-    var oWidth = $obj[0].width,
-        oHeight = $obj[0].height;
-  
+  function Sprite($obj, oWidth, oHeight, dx, zIndex, fixedZLevel) {
     this.$obj = $obj;
-    
+
     this.permutate = function() {
       var zLevelIndex = Math.floor(Math.random()*zLevels.length),
           zLevel = fixedZLevel || zLevels[zLevelIndex],
@@ -76,10 +73,18 @@
           .removeClass('hidden')
           .hide();
     
-      return (new Sprite(node, dx, zIndex, fixedZLevel)).permutate()
-                                           .position({
-                                              x: Math.random() * (winWidth - node.width()),
-                                              y: Math.random() * (waterLevel - node.height()) });
+      var sprite = new Sprite(
+        node, 
+        nodeToClone[0].width,
+        nodeToClone[0].height,
+        dx, 
+        zIndex, 
+        fixedZLevel);
+    
+      return sprite.permutate()
+                   .position({
+                      x: Math.random() * (winWidth - node.width()),
+                      y: Math.random() * (waterLevel - node.height()) });
     } 
     
     sprites['plane'] = createSprite(planeNode, 'plane', planeDx, 500);
@@ -127,21 +132,8 @@
   }
 
   game.events.on('loaded.core', function(e) {
-    var settings = e.settings,
-        cloudNode = $('#cloud'),
-        planeNode = $('#plane'),
-        loaded = 0;
-        
-    function inc() {
-      loaded += 1;
-      if (loaded == 2) { load(settings); }
-    }        
-        
-    if (cloudNode[0].complete) { inc(); }
-    if (planeNode[0].complete) { inc(); }
-            
-    cloudNode.on('load', inc);
-    planeNode.on('load', inc);
+    $('#cloud, #plane').imagesLoaded(function(images) {
+      load(e.settings);
+    });    
   });       
-
 })(this);

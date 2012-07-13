@@ -342,7 +342,7 @@
       start the game once until stop is called.
   */
   game.start = function() {
-    loop.start();
+    loop.start();    
     started = true;    
   }
   
