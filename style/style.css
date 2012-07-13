@@ -1,0 +1,34 @@
+button,input[type="button"],input[type="reset"],input[type="submit"]{cursor:pointer;-webkit-appearance:button;*overflow:visible}
+body{padding:0;margin:0;font-family:'Wellfleet'}
+.ui{font-family:'Wellfleet';font-size:28pt;border:0 solid #fff;color:#16d9eb;background-color:#069;padding:20px;display:block-inline;position:fixed;z-index:100}
+#thumb-button-left{position:fixed;bottom:80%;left:0;-webkit-border-radius:0 5px 5px 0;-moz-border-radius:0 5px 5px 0;-o-border-radius:0 5px 5px 0;-ms-border-radius:0 5px 5px 0;border-radius:0 5px 5px 0}
+#thumb-button-right{position:fixed;bottom:80%;right:0;-webkit-border-radius:5px 0 0 5px;-moz-border-radius:5px 0 0 5px;-o-border-radius:5px 0 0 5px;-ms-border-radius:5px 0 0 5px;border-radius:5px 0 0 5px}
+header{font-size:14pt;color:#fff;position:fixed;width:100%;text-align:center;padding:0;margin:0}
+#counter{padding:0;margin:0}
+#beachball{position:fixed;left:100px;top:100px;width:225px;height:225px;z-index:90}
+#splash{position:fixed;width:271px;height:92px;z-index:87}
+#beach-fg{position:fixed;bottom:-250px;left:0;width:70%;height:400px;-webkit-border-radius:150px;-moz-border-radius:150px;-o-border-radius:150px;-ms-border-radius:150px;border-radius:150px;background:#ead175;background-color:#ead175;background-image:-webkit-linear-gradient(top,#ead175 0%,#bd8633 50%);background-image:-moz-linear-gradient(top,#ead175 0%,#bd8633 50%);background-image:-ms-linear-gradient(top,#ead175 0%,#bd8633 50%);background-image:-o-linear-gradient(top,#ead175 0%,#bd8633 50%);background-image:linear-gradient(top,#ead175 0%,#bd8633 50%);z-index:89}
+#beach-bg{position:fixed;bottom:-250px;left:0;width:80%;height:400px;-webkit-border-radius:200px;-moz-border-radius:200px;-o-border-radius:200px;-ms-border-radius:200px;border-radius:200px;background:#bd8633;background-color:#bd8633;background-image:-webkit-linear-gradient(top,#bd8633 0%,#82521f 50%);background-image:-moz-linear-gradient(top,#bd8633 0%,#82521f 50%);background-image:-ms-linear-gradient(top,#bd8633 0%,#82521f 50%);background-image:-o-linear-gradient(top,#bd8633 0%,#82521f 50%);background-image:linear-gradient(top,#bd8633 0%,#82521f 50%);z-index:88}
+#logo{position:fixed;width:100%;height:100%;background-image:url("../images/logo.png");background-position:center 80px;background-repeat:no-repeat;z-index:70}
+#water-fg{position:fixed;bottom:0;left:0;width:100%;height:36px;background-image:url("../images/water1.png");background-repeat:repeat-x;-webkit-animation:water-bob 4s ease-in-out infinite;-moz-animation:water-bob 4s ease-in-out infinite;-o-animation:water-bob 4s ease-in-out infinite;-ms-animation:water-bob 4s ease-in-out infinite;animation:water-bob 4s ease-in-out infinite;z-index:91}
+#water-bg{position:fixed;bottom:0;left:0;width:100%;height:72px;background-image:url("../images/water2.png");background-repeat:repeat-x;-webkit-animation:water-bob 8s ease-in-out infinite;-moz-animation:water-bob 8s ease-in-out infinite;-o-animation:water-bob 8s ease-in-out infinite;-ms-animation:water-bob 8s ease-in-out infinite;animation:water-bob 8s ease-in-out infinite;z-index:68}
+#sky{position:fixed;width:100%;height:100%;background:none;background-color:#16d9eb;background-image:-webkit-linear-gradient(bottom,#16d9eb 44%,#14a9fa 72%);background-image:-moz-linear-gradient(bottom,#16d9eb 44%,#14a9fa 72%);background-image:-ms-linear-gradient(bottom,#16d9eb 44%,#14a9fa 72%);background-image:-o-linear-gradient(bottom,#16d9eb 44%,#14a9fa 72%);background-image:linear-gradient(bottom,#16d9eb 44%,#14a9fa 72%)}
+.cloud{position:fixed;z-index:80}
+.plane{position:fixed;z-index:85}
+.hidden{display:none}
+@-moz-keyframes water-bob{0%{bottom:0}
+50%{bottom:-18px}
+100%{bottom:0}
+}@-webkit-keyframes water-bob{0%{bottom:0}
+50%{bottom:-18px}
+100%{bottom:0}
+}@-o-keyframes water-bob{0%{bottom:0}
+50%{bottom:-18px}
+100%{bottom:0}
+}@-ms-keyframes water-bob{0%{bottom:0}
+50%{bottom:-18px}
+100%{bottom:0}
+}@keyframes water-bob{0%{bottom:0}
+50%{bottom:-18px}
+100%{bottom:0}
+}
