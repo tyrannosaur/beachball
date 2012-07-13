@@ -73,7 +73,7 @@
       
       node.attr('id', null)
           .addClass(className)
-          .removeClass(hidden)
+          .removeClass('hidden')
           .hide();
     
       return (new Sprite(node, dx, zIndex, fixedZLevel)).permutate()
